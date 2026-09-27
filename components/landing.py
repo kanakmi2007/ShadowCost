@@ -1,112 +1,130 @@
 """
-components/landing.py - Landing Screen Component (Teal + Black Theme)
+components/landing.py - Landing Command Center Workspace (Deep Midnight Theme)
+Flagship Overview Screen for ShadowCost
 """
 
 import streamlit as st
+from config import SVG_ICONS
 
 
 def render_landing_stage(on_start_callback=None):
-    """Renders Landing Screen with Hero, Demo Shortcuts, and Interactive Four Lenses."""
+    """Renders Landing Screen with Hero, Quick Demo Launchers, and Interactive Four Lenses."""
 
     h_left, h_right = st.columns([1.1, 1.2], gap="large")
 
     with h_left:
         st.markdown(
-            '<div style="font-family:\'Space Mono\',monospace;font-size:0.75rem;color:#0F766E;font-weight:700;letter-spacing:0.08em;margin-bottom:0.4rem;">'
-            'URBAN IMPACT INTELLIGENCE'
-            '</div>'
-            '<h1 style="font-size:2.8rem;font-weight:800;letter-spacing:-0.04em;line-height:1.15;color:#111111;margin-bottom:1rem;">'
-            'See the hidden impact<br>before you build.'
-            '</h1>'
-            '<div style="font-size:1.02rem;color:#4B5563;line-height:1.6;margin-bottom:1.5rem;">'
-            'ShadowCost helps planners understand the social, environmental and mobility consequences of infrastructure decisions before implementation.'
-            '</div>',
+            f"""
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:0.75rem;color:#10B981;font-weight:700;letter-spacing:0.1em;margin-bottom:0.4rem;display:flex;align-items:center;gap:0.4rem;">
+                {SVG_ICONS['sparkles']} URBAN SPATIAL IMPACT INTELLIGENCE
+            </div>
+            <h1 style="font-family:'Space Grotesk',sans-serif;font-size:clamp(2.1rem, 3.8vw, 2.6rem);font-weight:800;letter-spacing:-0.03em;line-height:1.15;color:#FFFFFF;margin-bottom:0.85rem;">
+                See the hidden impact<br><span style="color:#10B981;">before you build.</span>
+            </h1>
+            <div style="font-size:0.95rem;color:#E5E7EB;line-height:1.55;margin-bottom:1.25rem;max-width:520px;">
+                ShadowCost helps urban planners, policymakers, and civic teams quantify the hidden social, environmental, mobility, and infrastructure impact of spatial decisions before ground is broken.
+            </div>
+            """,
             unsafe_allow_html=True
         )
 
-        btn_c1, btn_c2 = st.columns([1.2, 1.2])
+        btn_c1, btn_c2 = st.columns([1.3, 1.2])
         with btn_c1:
-            if st.button("Analyze a Scenario →", type="primary", use_container_width=True):
+            if st.button("Launch Spatial Analysis →", key="hero_launch_btn", type="primary", use_container_width=True):
                 if on_start_callback:
                     on_start_callback(1)
                 st.rerun()
 
         with btn_c2:
-            if st.button("See How It Works", use_container_width=True):
+            if st.button("Explore Methodology", key="hero_method_btn", use_container_width=True):
                 if on_start_callback:
                     on_start_callback(4)
                 st.rerun()
 
         st.markdown(
-            '<div style="font-size:0.8rem;color:#6B7280;margin-top:1.25rem;">'
-            'Spatial analysis • Scenario modeling • Decision support'
-            '</div>',
+            """
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#9CA3AF;margin-top:1.1rem;">
+                GEOPANDAS INTERSECTION ENGINE • OPENSTREETMAP DARK • AI SYNTHESIS
+            </div>
+            """,
             unsafe_allow_html=True
         )
 
     with h_right:
-        # Visually impressive product preview card (Teal + Black palette)
+        # Visually impressive product preview card (Dark Navy Palette)
         st.markdown(
-            '<div style="background:#FFFFFF;border:1px solid #E5E7EB;border-radius:16px;box-shadow:0 12px 32px -8px rgba(17,17,17,0.06);padding:1.1rem;">'
-            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.85rem;">'
-            '<div style="font-family:\'Space Mono\',monospace;font-size:0.72rem;font-weight:700;color:#0F766E;letter-spacing:0.06em;">PRODUCT PREVIEW — DEMO SCENARIO</div>'
-            '<div style="font-size:0.7rem;color:#0F766E;background:#CCFBF1;border:1px solid #99F6E4;padding:0.2rem 0.5rem;border-radius:999px;font-weight:600;">● Active Model</div>'
-            '</div>'
-            '<div style="display:flex;gap:0.85rem;">'
-            '<div style="flex:1.3;background:#F7F7F5;border:1px solid #E5E7EB;border-radius:12px;height:220px;position:relative;padding:0.75rem;overflow:hidden;">'
-            '<div style="font-size:0.68rem;color:#4B5563;line-height:1.4;">'
-            '<span style="color:#0F766E;">—</span> Proposed Corridor<br>'
-            '<span style="color:#2A2A2A;">●</span> Residential Exposure<br>'
-            '<span style="color:#14B8A6;">●</span> Canopy Affected'
-            '</div>'
-            '<div style="position:absolute;top:30%;left:15%;width:70%;height:45%;border-top:3px solid #0F766E;transform:rotate(20deg);border-radius:8px;background:rgba(15,118,110,0.08);border-bottom:1px dashed #6B7280;"></div>'
-            '<div style="position:absolute;top:35%;left:25%;width:10px;height:10px;border-radius:50%;background:#111111;"></div>'
-            '<div style="position:absolute;top:55%;left:55%;width:10px;height:10px;border-radius:50%;background:#4B5563;"></div>'
-            '<div style="position:absolute;top:65%;left:75%;width:10px;height:10px;border-radius:50%;background:#14B8A6;"></div>'
-            '</div>'
-            '<div style="flex:1;display:flex;flex-direction:column;gap:0.5rem;">'
-            '<div style="background:#FFFFFF;border:1px solid #E5E7EB;border-radius:8px;padding:0.5rem 0.75rem;">'
-            '<div style="font-size:0.65rem;color:#6B7280;font-weight:700;letter-spacing:0.04em;">PEOPLE AFFECTED</div>'
-            '<div style="font-size:1.25rem;font-weight:800;color:#111111;">45</div>'
-            '</div>'
-            '<div style="background:#FFFFFF;border:1px solid #E5E7EB;border-radius:8px;padding:0.5rem 0.75rem;">'
-            '<div style="font-size:0.65rem;color:#6B7280;font-weight:700;letter-spacing:0.04em;">ADDITIONAL TRAVEL</div>'
-            '<div style="font-size:1.25rem;font-weight:800;color:#0F766E;">+23%</div>'
-            '</div>'
-            '<div style="background:#FFFFFF;border:1px solid #E5E7EB;border-radius:8px;padding:0.5rem 0.75rem;">'
-            '<div style="font-size:0.65rem;color:#6B7280;font-weight:700;letter-spacing:0.04em;">GREEN AREA</div>'
-            '<div style="font-size:1.25rem;font-weight:800;color:#14B8A6;">20.1 ha</div>'
-            '</div>'
-            '</div>'
-            '</div>'
-            '</div>',
+            f"""
+            <div class="glass-panel" style="padding:1rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;">
+                    <div style="font-family:'Space Grotesk',sans-serif;font-size:0.72rem;font-weight:700;color:#FFFFFF;letter-spacing:0.05em;display:flex;align-items:center;gap:0.4rem;">
+                        {SVG_ICONS['radar']} COMMAND PREVIEW
+                    </div>
+                    <div class="badge badge-emerald" style="font-size:0.65rem;">
+                        DEMO SCENARIO PREVIEW
+                    </div>
+                </div>
+                <div style="display:flex;gap:0.75rem;">
+                    <div style="flex:1.4;background:#0B0F17;border:1px solid #1E293B;border-radius:8px;height:200px;position:relative;padding:0.6rem;overflow:hidden;">
+                        <div style="font-size:0.65rem;color:#9CA3AF;line-height:1.4;">
+                            <span style="color:#10B981;">—</span> Proposed Alignment<br>
+                            <span style="color:#00D2FF;">●</span> Residential Exposure<br>
+                            <span style="color:#FFA500;">●</span> Infrastructure Intersect
+                        </div>
+                        <!-- Spatial Vector Wireframe Graphic -->
+                        <div style="position:absolute;top:30%;left:10%;width:80%;height:45%;border-top:3px solid #10B981;transform:rotate(18deg);border-radius:8px;background:rgba(16,185,129,0.08);border-bottom:1px dashed #00D2FF;"></div>
+                        <div style="position:absolute;top:35%;left:25%;width:9px;height:9px;border-radius:50%;background:#10B981;box-shadow:0 0 8px #10B981;"></div>
+                        <div style="position:absolute;top:55%;left:55%;width:9px;height:9px;border-radius:50%;background:#00D2FF;box-shadow:0 0 8px #00D2FF;"></div>
+                        <div style="position:absolute;top:65%;left:75%;width:9px;height:9px;border-radius:50%;background:#FFA500;box-shadow:0 0 8px #FFA500;"></div>
+                    </div>
+                    <div style="flex:1;display:flex;flex-direction:column;gap:0.45rem;">
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid #1E293B;border-radius:6px;padding:0.4rem 0.6rem;">
+                            <div style="font-family:'Space Grotesk',sans-serif;font-size:0.62rem;color:#9CA3AF;font-weight:700;">PEOPLE AFFECTED</div>
+                            <div class="metric-mono" style="font-size:1.2rem !important;">450</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid #1E293B;border-radius:6px;padding:0.4rem 0.6rem;">
+                            <div style="font-family:'Space Grotesk',sans-serif;font-size:0.62rem;color:#9CA3AF;font-weight:700;">MOBILITY SHIFT</div>
+                            <div class="metric-mono" style="font-size:1.2rem !important;color:#00D2FF !important;">+23%</div>
+                        </div>
+                        <div style="background:rgba(255,255,255,0.03);border:1px solid #1E293B;border-radius:6px;padding:0.4rem 0.6rem;">
+                            <div style="font-family:'Space Grotesk',sans-serif;font-size:0.62rem;color:#9CA3AF;font-weight:700;">CANOPY LOSS</div>
+                            <div class="metric-mono" style="font-size:1.2rem !important;color:#10B981 !important;">1.4 ha</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            """,
             unsafe_allow_html=True
         )
 
     st.markdown("<div style='height:1.5rem;'></div>", unsafe_allow_html=True)
 
-    # FEATURE 8 — DEMO MODE SHORTCUTS FOR HACKATHON
+    # INSTANT DEMO SCENARIO LAUNCHERS
     st.markdown(
-        '<div style="background:#CCFBF1;border:1px solid #99F6E4;border-radius:12px;padding:0.85rem 1.15rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.5rem;">'
-        '<div>'
-        '<div style="font-weight:700;font-size:0.85rem;color:#0F766E;">⚡ Instant Demo Scenarios for Judges</div>'
-        '<div style="font-size:0.78rem;color:#115E59;">Load a pre-configured scenario to instantly view spatial analysis & impact reports.</div>'
-        '</div>'
-        '</div>',
+        f"""
+        <div style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.25);border-radius:8px;padding:0.85rem 1.25rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;margin-bottom:1.5rem;">
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+                {SVG_ICONS['sparkles']}
+                <div>
+                    <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.88rem;color:#10B981;">PRESETS</div>
+                    <div style="font-size:0.78rem;color:#E5E7EB;">Instant spatial intervention presets with pre-computed polygon geometries and network graphs.</div>
+                </div>
+            </div>
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
     d_col1, d_col2 = st.columns(2)
     with d_col1:
-        if st.button("🛣️ Try Demo: Road Corridor — Saket", use_container_width=True):
+        if st.button("Preset 1: Road Alignment — Saket, Delhi", key="preset_saket", use_container_width=True):
             st.session_state["current_city_query"] = "Saket, New Delhi"
             st.session_state["radius_km"] = 1.2
-            st.session_state["active_tab_idx"] = 1  # Scenario tab
-            st.session_state["scenario_substep"] = 1  # Intervention setup
+            st.session_state["active_tab_idx"] = 1  # Spatial Analysis
+            st.session_state["scenario_substep"] = 1  # Draw intervention
             st.rerun()
 
     with d_col2:
-        if st.button("🏗️ Try Demo: Footprint — Bandra West", use_container_width=True):
+        if st.button("Preset 2: Building Footprint — Bandra West, Mumbai", key="preset_bandra", use_container_width=True):
             st.session_state["current_city_query"] = "Bandra West, Mumbai"
             st.session_state["radius_km"] = 1.2
             st.session_state["active_tab_idx"] = 1
@@ -115,53 +133,85 @@ def render_landing_stage(on_start_callback=None):
 
     st.markdown("<div style='height:1.5rem;'></div>", unsafe_allow_html=True)
 
-    # FEATURE 9 — INTERACTIVE FOUR LENSES SECTION
+    # INTERACTIVE FOUR LENSES CARDS WITH CLEAN SVG MARKS
     st.markdown(
-        '<div style="margin-bottom:1rem;">'
-        '<div style="font-family:\'Space Mono\',monospace;font-size:0.72rem;color:#6B7280;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;">'
-        'FOUR LENSES OF HIDDEN IMPACT'
-        '</div>'
-        '<h2 style="font-size:1.4rem;font-weight:800;color:#111111;margin-top:0.15rem;letter-spacing:-0.02em;">'
-        'One decision, measured across what matters'
-        '</h2>'
-        '</div>',
+        """
+        <div style="margin-bottom:1rem;">
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:0.72rem;color:#10B981;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;">
+                FOUR SPATIAL LENSES
+            </div>
+            <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.5rem;font-weight:800;color:#FFFFFF;margin-top:0.15rem;letter-spacing:-0.02em;">
+                Multi-dimensional urban impact evaluation
+            </h2>
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
     l1, l2, l3, l4 = st.columns(4)
 
     with l1:
-        with st.expander("👥 SOCIAL", expanded=False):
-            st.caption("Who is affected?")
-            st.markdown("**What ShadowCost measures here:**\nPopulation and community assets inside the exposure zone. Measures displacement, route disruptions, and school/clinic access.")
+        st.markdown(
+            f"""
+            <div class="glass-panel" style="min-height:160px;">
+                <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+                    {SVG_ICONS['social']}
+                    <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:#FF4757;font-size:0.85rem;">SOCIAL EXPOSURE</span>
+                </div>
+                <div style="font-size:0.78rem;color:#E5E7EB;line-height:1.45;">
+                    Quantifies displaced residents, housing complex intersections, school/clinic proximity, and community route disruption.
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
     with l2:
-        with st.expander("🍃 ENVIRONMENT", expanded=False):
-            st.caption("What is displaced?")
-            st.markdown("**What ShadowCost measures here:**\nTree canopy removed, green cover percentage loss, and localized heat exposure risk.")
+        st.markdown(
+            f"""
+            <div class="glass-panel" style="min-height:160px;">
+                <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+                    {SVG_ICONS['environment']}
+                    <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:#10B981;font-size:0.85rem;">ENVIRONMENT</span>
+                </div>
+                <div style="font-size:0.78rem;color:#E5E7EB;line-height:1.45;">
+                    Measures tree canopy removal (ha), green cover percentage loss, and urban heat island micro-climate exposure.
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
     with l3:
-        with st.expander("🧭 MOBILITY", expanded=False):
-            st.caption("How movement changes?")
-            st.markdown("**What ShadowCost measures here:**\nAverage added travel distance, daily trips rerouted, and peak-hour delay multipliers.")
+        st.markdown(
+            f"""
+            <div class="glass-panel" style="min-height:160px;">
+                <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+                    {SVG_ICONS['mobility']}
+                    <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:#00D2FF;font-size:0.85rem;">MOBILITY NETWORK</span>
+                </div>
+                <div style="font-size:0.78rem;color:#E5E7EB;line-height:1.45;">
+                    Calculates average added travel distance, network detour factors, daily trip rerouting, and peak-hour congestion multipliers.
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
     with l4:
-        with st.expander("💲 COST / IMPACT", expanded=False):
-            st.caption("Modeled consequences?")
-            st.markdown("**What ShadowCost measures here:**\nComposite Shadow Impact Index (0-100) weighting social, environmental, and travel tradeoffs.")
+        st.markdown(
+            f"""
+            <div class="glass-panel" style="min-height:160px;">
+                <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">
+                    {SVG_ICONS['infrastructure']}
+                    <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:#FFA500;font-size:0.85rem;">INFRASTRUCTURE</span>
+                </div>
+                <div style="font-size:0.78rem;color:#E5E7EB;line-height:1.45;">
+                    Computes composite Shadow Impact Index (0-100), asset displacement counts, and rights-of-way cost tradeoffs.
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
     st.markdown("<div style='height:2rem;'></div>", unsafe_allow_html=True)
-
-    # Footer
-    st.markdown(
-        '<hr style="border-color:#E5E7EB;margin-bottom:1.5rem;">'
-        '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;font-size:0.8rem;color:#6B7280;">'
-        '<div>'
-        '<b style="color:#111111;">ShadowCost</b> &nbsp;·&nbsp; See the hidden impact before you build.'
-        '</div>'
-        '<div style="font-size:0.75rem;color:#6B7280;">'
-        'Prototype · modeled estimates'
-        '</div>'
-        '</div>',
-        unsafe_allow_html=True
-    )

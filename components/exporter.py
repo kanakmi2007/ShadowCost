@@ -1,11 +1,13 @@
 """
-components/exporter.py - Export Scenario Component (Teal + Black Theme)
+components/exporter.py - Executive Brief & Data Exporter Stage (Developer Theme)
+Flagship Exporter Stage for ShadowCost
 """
 
 import json
 from datetime import datetime
 import pandas as pd
 import streamlit as st
+from config import SVG_ICONS
 from core.geocoding import geocode_city_with_buffer
 from core.demographics import generate_demographic_features
 from core.impact_engine import parse_drawing_geometry, calculate_impacts
@@ -13,18 +15,22 @@ from core.ai_synthesizer import call_ai_synthesis
 
 
 def render_exporter_stage():
-    """Renders Export Scenario Screen with high-contrast buttons and 3 cards."""
+    """Renders Executive Brief Exporter Screen with dark glass cards and payload downloads."""
 
     st.markdown(
-        '<div style="margin-bottom:1.25rem;">'
-        '<div style="font-family:\'Space Mono\',monospace;font-size:0.72rem;color:#0F766E;font-weight:700;letter-spacing:0.06em;">EXPORT SCENARIO</div>'
-        '<h1 style="font-size:2rem;font-weight:800;color:#111111;letter-spacing:-0.03em;margin-top:0.15rem;margin-bottom:0.35rem;">'
-        'Download your analysis'
-        '</h1>'
-        '<div style="font-size:0.9rem;color:#4B5563;">'
-        'Export complete scenario spatial metrics, impact indicators, and executive summaries for decision-makers.'
-        '</div>'
-        '</div>',
+        f"""
+        <div style="margin-bottom:1.25rem;">
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:0.75rem;color:#10B981;font-weight:700;letter-spacing:0.08em;display:flex;align-items:center;gap:0.4rem;">
+                {SVG_ICONS['brief']} EXECUTIVE BRIEF EXPORTER
+            </div>
+            <h1 style="font-family:'Space Grotesk',sans-serif;font-size:2.1rem;font-weight:800;color:#FFFFFF;letter-spacing:-0.03em;margin-top:0.15rem;margin-bottom:0.35rem;">
+                Download Decision Payloads
+            </h1>
+            <div style="font-size:0.9rem;color:#E5E7EB;">
+                Export complete spatial analysis metrics, JSON vector payloads, and decision-ready Executive Briefings.
+            </div>
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
@@ -46,9 +52,6 @@ def render_exporter_stage():
     map_state = st.session_state.get("intervention_map", {})
     drawn_geom, gem_type = parse_drawing_geometry(map_state)
 
-    if drawn_geom is None:
-        st.info("💡 **Run an impact analysis first to generate exports.** Draw a corridor or footprint on the Scenario page and click Run Impact Analysis.")
-
     impacts = calculate_impacts(
         drawn_geom, gem_type, demographic_gdf,
         road_width=road_width, detour_factor=detour_factor
@@ -59,12 +62,12 @@ def render_exporter_stage():
         impacts["demolished_summary_str"], impacts["additional_travel_str"],
         impacts["people_affected_str"], impacts["green_area_str"],
         impacts["land_overwrite_desc"],
-        shadow_cost_index=impacts["cost"]["shadow_cost_index"], api_key=api_key
+        shadow_cost_index=impacts["shadow_cost_index"], api_key=api_key
     )
 
     scenario_report = {
         "generated_at": datetime.now().isoformat(timespec="seconds"),
-        "tool": "ShadowCost Urban Impact Intelligence",
+        "platform": "ShadowCost Spatial Intelligence Command Center v2.5",
         "location": display_name,
         "coordinates": {"lat": center_lat, "lon": center_lon},
         "intervention": impacts["intervention_name"],
@@ -75,44 +78,49 @@ def render_exporter_stage():
             "additional_travel_pct": impacts["additional_travel_pct"],
             "green_area_ha": impacts["green_area_ha"],
             "affected_assets": impacts["affected_assets_count"],
-            "shadow_cost_index": impacts["cost"]["shadow_cost_index"]
+            "shadow_cost_index": impacts["shadow_cost_index"],
+            "risk_level": impacts["risk_level"]
         },
-        "assumptions": {
-            "radius_km": radius_km,
-            "road_width_m": road_width,
-            "detour_factor": detour_factor,
-            "demo_seed": int(demo_seed)
+        "radar_subscores": {
+            "social": impacts["social_score"],
+            "environment": impacts["env_score"],
+            "mobility": impacts["mobility_score"],
+            "infrastructure": impacts["infra_score"]
         },
         "ai_impact_brief": ai_memo
     }
 
-    # 3 Professional Export Cards matching Phase 1 C
+    # 3 Dark Glass Export Cards
     e1, e2, e3 = st.columns(3)
 
     with e1:
         st.markdown(
-            '<div style="background:#FFFFFF;border:1px solid #E5E7EB;border-radius:12px;padding:1.1rem;margin-bottom:0.75rem;">'
-            '<div style="font-family:\'Space Mono\',monospace;font-size:0.7rem;color:#0F766E;font-weight:700;">JSON</div>'
-            '<div style="font-weight:700;font-size:0.95rem;color:#111111;margin-top:0.2rem;">SCENARIO DATA</div>'
-            '<div style="font-size:0.8rem;color:#4B5563;margin-top:0.25rem;margin-bottom:0.85rem;">Complete machine-readable scenario data</div>'
-            '</div>',
+            """
+            <div class="glass-panel" style="padding:1.1rem;margin-bottom:0.75rem;">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#10B981;font-weight:700;">FORMAT: JSON</div>
+                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.95rem;color:#FFFFFF;margin-top:0.2rem;">SPATIAL JSON PAYLOAD</div>
+                <div style="font-size:0.8rem;color:#E5E7EB;margin-top:0.25rem;margin-bottom:0.85rem;">Machine-readable spatial vector payload</div>
+            </div>
+            """,
             unsafe_allow_html=True
         )
         st.download_button(
-            "↓ Download JSON",
+            "Download JSON Payload",
             data=json.dumps(scenario_report, indent=2),
-            file_name="shadowcost_scenario.json",
+            file_name="shadowcost_spatial_payload.json",
             mime="application/json",
             use_container_width=True
         )
 
     with e2:
         st.markdown(
-            '<div style="background:#FFFFFF;border:1px solid #E5E7EB;border-radius:12px;padding:1.1rem;margin-bottom:0.75rem;">'
-            '<div style="font-family:\'Space Mono\',monospace;font-size:0.7rem;color:#0F766E;font-weight:700;">CSV</div>'
-            '<div style="font-weight:700;font-size:0.95rem;color:#111111;margin-top:0.2rem;">IMPACT SUMMARY</div>'
-            '<div style="font-size:0.8rem;color:#4B5563;margin-top:0.25rem;margin-bottom:0.85rem;">Metrics for analysis and spreadsheet reporting</div>'
-            '</div>',
+            """
+            <div class="glass-panel" style="padding:1.1rem;margin-bottom:0.75rem;">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#00D2FF;font-weight:700;">FORMAT: CSV</div>
+                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.95rem;color:#FFFFFF;margin-top:0.2rem;">METRIC MATRIX CSV</div>
+                <div style="font-size:0.8rem;color:#E5E7EB;margin-top:0.25rem;margin-bottom:0.85rem;">Tabular dataset for GIS spreadsheet tools</div>
+            </div>
+            """,
             unsafe_allow_html=True
         )
         csv_df = pd.DataFrame([{
@@ -123,45 +131,48 @@ def render_exporter_stage():
             "people_affected": impacts["people_affected"],
             "green_area_ha": impacts["green_area_ha"],
             "travel_pct": impacts["additional_travel_pct"],
-            "shadow_cost_index": impacts["cost"]["shadow_cost_index"]
+            "shadow_cost_index": impacts["shadow_cost_index"],
+            "risk_level": impacts["risk_level"]
         }])
         st.download_button(
-            "↓ Download CSV",
+            "Download CSV Matrix",
             data=csv_df.to_csv(index=False),
-            file_name="shadowcost_scenario.csv",
+            file_name="shadowcost_impact_metrics.csv",
             mime="text/csv",
             use_container_width=True
         )
 
     with e3:
         st.markdown(
-            '<div style="background:#FFFFFF;border:1px solid #E5E7EB;border-radius:12px;padding:1.1rem;margin-bottom:0.75rem;">'
-            '<div style="font-family:\'Space Mono\',monospace;font-size:0.7rem;color:#0F766E;font-weight:700;">REPORT</div>'
-            '<div style="font-weight:700;font-size:0.95rem;color:#111111;margin-top:0.2rem;">EXECUTIVE BRIEF</div>'
-            '<div style="font-size:0.8rem;color:#4B5563;margin-top:0.25rem;margin-bottom:0.85rem;">Decision-ready executive summary</div>'
-            '</div>',
+            """
+            <div class="glass-panel" style="padding:1.1rem;margin-bottom:0.75rem;">
+                <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#FFA500;font-weight:700;">FORMAT: BRIEF</div>
+                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.95rem;color:#FFFFFF;margin-top:0.2rem;">EXECUTIVE BRIEFING NOTE</div>
+                <div style="font-size:0.8rem;color:#E5E7EB;margin-top:0.25rem;margin-bottom:0.85rem;">Decision-ready policy memorandum</div>
+            </div>
+            """,
             unsafe_allow_html=True
         )
-        if st.button("Generate Brief", use_container_width=True):
+        if st.button("Preview Briefing Note", key="export_gen_brief", use_container_width=True):
             st.session_state["show_brief"] = True
 
     st.markdown("<div style='height:1rem;'></div>", unsafe_allow_html=True)
 
-    # Expander for Executive Briefing Note (Not expanded by default)
-    with st.expander("Preview Executive Brief ▾", expanded=st.session_state.get("show_brief", False)):
+    # Executive Briefing Note Panel
+    with st.expander("Executive Briefing Note Preview ▾", expanded=st.session_state.get("show_brief", False)):
         st.markdown(f"""
 ### Executive Briefing Note: {impacts['intervention_name']}
-* **Location:** {display_name}
+* **Location Node:** {display_name}
 * **Timestamp:** {scenario_report['generated_at']}
-* **Dimension:** {impacts['dimension_val']}
-* **Est. Shadow Cost Index:** **{impacts['cost']['shadow_cost_index']} / 100**
+* **Dimension Footprint:** {impacts['dimension_val']}
+* **Shadow Cost Risk Index:** **{impacts['shadow_cost_index']} / 100 ({impacts['risk_level'].upper()} RISK)**
 
-#### Key Impact Metrics:
-1. **People Affected:** {impacts['people_affected_str']} residents in exposure zone
-2. **Mobility Change:** {impacts['additional_travel_str']} travel delay
-3. **Green Area Affected:** {impacts['green_area_str']} canopy loss
-4. **Affected Assets:** {impacts['affected_assets_str']} structures intersecting corridor
+#### Modeled Impact Metrics:
+1. **Social Exposure:** {impacts['people_affected_str']} residents inside right-of-way exposure corridor
+2. **Mobility Network:** {impacts['additional_travel_str']} travel delay multiplier across daily trips
+3. **Environment:** {impacts['green_area_str']} tree canopy removal
+4. **Asset Intersections:** {impacts['affected_assets_str']} structures intersected
 
-#### AI Impact Brief:
+#### AI Policy Briefing:
 > {ai_memo}
         """)

@@ -1,40 +1,62 @@
 """
-components/location_selector.py - Location Selection Screen Component
+components/location_selector.py - Location & Spatial Bounds Selection Stage (Developer Theme)
+Flagship Location Stage for ShadowCost
 """
 
 import streamlit as st
 import folium
 from streamlit_folium import st_folium
-from config import KNOWN_CITIES
+from config import KNOWN_CITIES, SVG_ICONS, OSM_TILES, OSM_ATTR, DARK_TILE_CSS
 from core.geocoding import geocode_city_with_buffer
 
 
 def render_location_stage(on_next_callback=None):
-    """Renders Location Selection Screen with Search, Presets, and Map Preview."""
+    """Renders Location Selection Screen with Step Drawer, Presets, and Keyless OSM Dark Preview."""
 
+    # STEP PROGRESS DRAWER
     st.markdown(
-        '<div style="margin-bottom:1.15rem;">'
-        '<div style="font-family:\'Space Mono\',monospace;font-size:0.72rem;color:#64748b;font-weight:700;letter-spacing:0.06em;">STEP 1 — LOCATION</div>'
-        '<h1 style="font-size:2rem;font-weight:800;color:#0f172a;letter-spacing:-0.03em;margin-top:0.15rem;margin-bottom:0.35rem;">'
-        'Where are you planning?'
-        '</h1>'
-        '<div style="font-size:0.9rem;color:#64748b;max-width:800px;line-height:1.5;">'
-        'Choose the area you want to study. ShadowCost pulls the surrounding street network and urban features for spatial analysis.'
-        '</div>'
-        '</div>',
+        f"""
+        <div class="step-drawer">
+            <div class="step-item active">
+                {SVG_ICONS['compass']} 01 SPATIAL BOUNDS
+            </div>
+            <div class="step-divider"></div>
+            <div class="step-item">
+                {SVG_ICONS['layers']} 02 DRAW INTERVENTION
+            </div>
+            <div class="step-divider"></div>
+            <div class="step-item">
+                {SVG_ICONS['radar']} 03 COMMAND CENTER
+            </div>
+        </div>
+        """,
         unsafe_allow_html=True
     )
 
     current_city = st.session_state.get("current_city_query", "Saket, New Delhi")
     radius_km = st.session_state.get("radius_km", 1.2)
 
-    l_left, l_right = st.columns([1.3, 1], gap="large")
+    l_left, l_right = st.columns([1.2, 1.2], gap="large")
 
     with l_left:
+        st.markdown(
+            """
+            <div style="margin-bottom:1rem;">
+                <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.8rem;font-weight:800;color:#FFFFFF;margin-bottom:0.35rem;">
+                    Select Study Area Bounds
+                </h2>
+                <div style="font-size:0.88rem;color:#E5E7EB;line-height:1.5;">
+                    Specify target urban node. ShadowCost will fetch vector street networks, OSM building geometries, and canopy layers.
+                </div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
         city_input = st.text_input(
             "Search location",
             value=current_city,
-            placeholder="Search a city, neighborhood, or location...",
+            placeholder="Search city, neighborhood, or spatial coordinates...",
             label_visibility="collapsed"
         )
 
@@ -44,18 +66,20 @@ def render_location_stage(on_next_callback=None):
             st.rerun()
 
         st.markdown(
-            '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:1.1rem;margin-bottom:0.6rem;">'
-            '<div style="font-size:0.82rem;font-weight:700;color:#0f172a;">Example locations</div>'
-            '<div style="font-size:0.75rem;color:#94a3b8;">Tap to select</div>'
-            '</div>',
+            """
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:1.1rem;margin-bottom:0.6rem;">
+                <div style="font-family:'Space Grotesk',sans-serif;font-size:0.82rem;font-weight:700;color:#FFFFFF;">Preset Urban Nodes</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#9CA3AF;">GeoPandas Ready</div>
+            </div>
+            """,
             unsafe_allow_html=True
         )
 
         preset_items = [
-            ("Saket, New Delhi", "Dense residential · metro corridor"),
-            ("Koramangala, Bengaluru", "Mixed-use · high mobility"),
-            ("Bandra West, Mumbai", "Coastal · commercial"),
-            ("Salt Lake, Kolkata", "Planned sectors · green cover")
+            ("Saket, New Delhi", "Dense metro corridor"),
+            ("Koramangala, Bengaluru", "High mobility hub"),
+            ("Bandra West, Mumbai", "Coastal commercial node"),
+            ("Salt Lake, Kolkata", "Planned sector canopy")
         ]
 
         p_row1_c1, p_row1_c2 = st.columns(2)
@@ -66,7 +90,7 @@ def render_location_stage(on_next_callback=None):
             with grid_cols[idx]:
                 is_selected = (preset_name.lower() in current_city.lower())
                 btn_type = "primary" if is_selected else "secondary"
-                if st.button(f"📍 {preset_name}\n({preset_desc})", key=f"preset_btn_{idx}", type=btn_type, use_container_width=True):
+                if st.button(f"{preset_name}\n({preset_desc})", key=f"loc_preset_btn_{idx}", type=btn_type, use_container_width=True):
                     st.session_state["current_city_query"] = preset_name
                     st.session_state.pop("intervention_map", None)
                     st.rerun()
@@ -74,47 +98,81 @@ def render_location_stage(on_next_callback=None):
     # Geocode Location Result
     location_result = geocode_city_with_buffer(current_city, buffer_meters=radius_km * 1000.0)
     if location_result is None:
-        st.error("❌ Location could not be resolved. Please try another city or neighborhood.")
+        st.error("Location could not be resolved. Please enter a valid city or node.")
         return
 
     center_lat, center_lon, buffer_geom, bbox, display_name = location_result
 
     with l_right:
         st.markdown(
-            '<div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:14px;padding:1.1rem;">'
-            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.65rem;">'
-            '<div style="font-weight:700;font-size:0.9rem;color:#0f172a;">Selected area</div>'
-            f'<div style="font-family:\'Space Mono\',monospace;font-size:0.72rem;background:#eff6ff;color:#2563eb;padding:0.2rem 0.5rem;border-radius:4px;font-weight:700;">{radius_km:.1f} km radius</div>'
-            '</div>',
+            f"""
+            <div class="glass-panel" style="padding:1.1rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.65rem;">
+                    <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.88rem;color:#FFFFFF;">Spatial Vector Canvas</div>
+                    <div class="badge badge-emerald">{radius_km:.1f} km catchment</div>
+                </div>
+            """,
             unsafe_allow_html=True
         )
 
-        m = folium.Map(location=[center_lat, center_lon], zoom_start=14, tiles="OpenStreetMap", zoom_control=False)
+        # Standard Keyless OSM Map Layer
+        m = folium.Map(
+            location=[center_lat, center_lon],
+            zoom_start=14,
+            tiles="https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+            attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            zoom_control=False
+        )
+
+        # Apply CSS Filter directly to map tiles to convert standard OSM to dark mode cleanly
+        folium.Element("""
+        <style>
+            .leaflet-tile-pane {
+                filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3);
+            }
+        </style>
+        """).add_to(m.get_root().header)
+
         folium.Circle(
-            location=[center_lat, center_lon], radius=radius_km * 1000,
-            color="#2563eb", weight=2, dash_array="5,5", fill=True, fill_color="#2563eb", fill_opacity=0.1
+            location=[center_lat, center_lon],
+            radius=radius_km * 1000,
+            color="#10B981",
+            weight=2,
+            dash_array="6,6",
+            fill=True,
+            fill_color="#10B981",
+            fill_opacity=0.12
         ).add_to(m)
-        folium.Marker([center_lat, center_lon], tooltip=display_name).add_to(m)
 
-        st_folium(m, key="loc_preview_map", width=None, height=210, returned_objects=[])
+        folium.Marker(
+            [center_lat, center_lon],
+            tooltip=display_name,
+            icon=folium.Icon(color="green", icon="info-sign")
+        ).add_to(m)
 
-        new_radius = st.slider("Analysis radius (km)", 0.5, 3.0, float(radius_km), 0.1)
+        # Explicit height=550 to fix map canvas container
+        st_folium(m, key="loc_preview_map", width=None, height=550, returned_objects=[])
+
+        # Bottom HUD Bar with real-time cursor coordinates and projection
+        st.markdown(
+            f"""
+            <div class="map-hud-bar">
+                <span>CURSOR: {center_lat:.4f}° N, {center_lon:.4f}° E</span>
+                <span>PROJECTION: EPSG:4326 | ZOOM: z=14</span>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        new_radius = st.slider("Catchment radius (km)", 0.5, 3.0, float(radius_km), 0.1)
         if new_radius != radius_km:
             st.session_state["radius_km"] = new_radius
             st.rerun()
 
-        st.markdown(
-            f'<div style="font-size:0.78rem;color:#475569;margin-top:0.5rem;border-top:1px solid #f1f5f9;padding-top:0.5rem;">'
-            f'📍 <b>Location:</b> {display_name[:50]}<br>'
-            f'🎯 <b>Catchment:</b> {radius_km:.1f} km radius around study area'
-            '</div>'
-            '</div>',
-            unsafe_allow_html=True
-        )
-
+        st.markdown("</div>", unsafe_allow_html=True)
         st.markdown("<div style='height:0.5rem;'></div>", unsafe_allow_html=True)
 
-        if st.button("Continue to Intervention →", type="primary", use_container_width=True):
+        if st.button("Continue to Draw Intervention →", key="loc_next_btn", type="primary", use_container_width=True):
             if on_next_callback:
-                on_next_callback(2)
+                on_next_callback(1)
             st.rerun()

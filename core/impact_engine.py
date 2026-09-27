@@ -1,5 +1,6 @@
 """
 core/impact_engine.py - GeoPandas Spatial Analysis & Impact Metric Engine
+Flagship Spatial Analytics Core for ShadowCost
 """
 
 import geopandas as gpd
@@ -39,9 +40,11 @@ def calculate_impacts(
 ):
     """
     Executes spatial intersection analysis using GeoPandas UTM projection.
-    Returns structured metrics across the 4 lenses: Social, Environment, Mobility, Cost Index.
+    Returns structured metrics across the 4 lenses: Social, Environment, Mobility, Infrastructure/Cost.
+    Includes normalized 0-100 radar sub-scores and risk classifications.
     """
     result = {
+        "is_baseline": True,
         "intervention_name": "Baseline Observation",
         "gem_type": gem_type or "None",
         "dimension_label": "Scenario footprint",
@@ -50,7 +53,7 @@ def calculate_impacts(
         "is_road": False,
         "is_structure": False,
         
-        # 4 Primary KPI Metrics (matching design mockups)
+        # 4 Primary KPI Metrics
         "people_affected": 0,
         "people_affected_str": "0",
         "people_margin": "±0",
@@ -68,6 +71,17 @@ def calculate_impacts(
         "affected_assets_str": "0",
         "affected_assets_subtext": "structures",
         
+        # Normalized 0-100 Lens Sub-scores for Radar Fingerprint
+        "social_score": 10,
+        "env_score": 10,
+        "mobility_score": 10,
+        "infra_score": 10,
+        
+        # Risk Metadata
+        "shadow_cost_index": 12,
+        "risk_level": "Low",
+        "primary_risk_domain": "Environment",
+
         # Detailed Categorized Lenses
         "social": {
             "exposure_residents": 0,
@@ -88,17 +102,18 @@ def calculate_impacts(
             "peak_hour_delay_pct": 0.0
         },
         "cost": {
-            "shadow_cost_index": 0,
+            "shadow_cost_index": 12,
             "impact_level": "Low"
         },
         
-        "land_overwrite_desc": "No intervention drawn yet",
+        "land_overwrite_desc": "Baseline observation — no intervention active",
         "demolished_summary_str": "No existing structures affected"
     }
 
     if drawn_geom is None or demographic_gdf is None or demographic_gdf.empty:
         return result
 
+    result["is_baseline"] = False
     utm_crs = demographic_gdf.estimate_utm_crs()
     demographic_utm = demographic_gdf.to_crs(utm_crs)
     is_road = gem_type in ["LineString", "MultiLineString"]
@@ -140,8 +155,13 @@ def calculate_impacts(
         trips_rerouted = int(length_meters * 1.8) + 1200
         trees_removed = int(green_loss_m2 * 0.12)
 
-        # Composite Shadow Cost Index (0-100 scale)
-        shadow_index = min(100, max(12, int(displaced_pop / 35 + green_loss_ha * 15 + pct_travel_change * 0.8)))
+        # Lens Sub-scores (0-100 scale)
+        soc_s = min(100, max(15, int((displaced_pop / 400.0) * 100)))
+        env_s = min(100, max(15, int((green_loss_ha / 2.0) * 100 + trees_removed / 3.0)))
+        mob_s = min(100, max(15, int((pct_travel_change / 35.0) * 100)))
+        inf_s = min(100, max(15, int((num_affected / 12.0) * 100)))
+
+        shadow_index = min(100, max(15, int(soc_s * 0.35 + env_s * 0.25 + mob_s * 0.25 + inf_s * 0.15)))
 
         parts = []
         if apt_count: parts.append(f"{apt_count} apartment complexes")
@@ -171,6 +191,19 @@ def calculate_impacts(
         result["affected_assets_str"] = f"{num_affected}"
         result["affected_assets_subtext"] = "structures"
 
+        result["social_score"] = soc_s
+        result["env_score"] = env_s
+        result["mobility_score"] = mob_s
+        result["infra_score"] = inf_s
+
+        result["shadow_cost_index"] = shadow_index
+        risk_lvl = "Critical" if shadow_index >= 75 else ("High" if shadow_index >= 50 else ("Moderate" if shadow_index >= 30 else "Low"))
+        result["risk_level"] = risk_lvl
+        
+        # Primary Risk Domain
+        scores = {"Social Exposure": soc_s, "Canopy Loss": env_s, "Mobility Shift": mob_s, "Asset Displacement": inf_s}
+        result["primary_risk_domain"] = max(scores, key=scores.get)
+
         result["social"] = {
             "exposure_residents": displaced_pop,
             "pedestrian_routes_disrupted": max(2, int(length_meters / 250)),
@@ -194,7 +227,7 @@ def calculate_impacts(
 
         result["cost"] = {
             "shadow_cost_index": shadow_index,
-            "impact_level": "High" if shadow_index > 65 else ("Moderate" if shadow_index > 35 else "Low")
+            "impact_level": risk_lvl
         }
 
         result["land_overwrite_desc"] = f"{length_meters:,.0f} m roadway × {road_width} m corridor"
@@ -226,7 +259,13 @@ def calculate_impacts(
         displaced_pop = apt_count * 180 + other_res_count * 45
         induced_traffic = int(area_m2 * 0.22)
         trees_removed = int(green_loss_m2 * 0.15)
-        shadow_index = min(100, max(15, int(displaced_pop / 30 + green_loss_ha * 20 + area_m2 / 500)))
+
+        soc_s = min(100, max(15, int((displaced_pop / 350.0) * 100)))
+        env_s = min(100, max(15, int((green_loss_ha / 1.5) * 100 + trees_removed / 2.5)))
+        mob_s = min(100, max(15, int((induced_traffic / 800.0) * 100)))
+        inf_s = min(100, max(15, int((num_affected / 10.0) * 100)))
+
+        shadow_index = min(100, max(15, int(soc_s * 0.35 + env_s * 0.25 + mob_s * 0.25 + inf_s * 0.15)))
 
         parts = []
         if apt_count: parts.append(f"{apt_count} apartment complexes")
@@ -255,6 +294,18 @@ def calculate_impacts(
         result["affected_assets_str"] = f"{num_affected}"
         result["affected_assets_subtext"] = "structures"
 
+        result["social_score"] = soc_s
+        result["env_score"] = env_s
+        result["mobility_score"] = mob_s
+        result["infra_score"] = inf_s
+
+        result["shadow_cost_index"] = shadow_index
+        risk_lvl = "Critical" if shadow_index >= 75 else ("High" if shadow_index >= 50 else ("Moderate" if shadow_index >= 30 else "Low"))
+        result["risk_level"] = risk_lvl
+
+        scores = {"Social Exposure": soc_s, "Canopy Loss": env_s, "Mobility Shift": mob_s, "Asset Displacement": inf_s}
+        result["primary_risk_domain"] = max(scores, key=scores.get)
+
         result["social"] = {
             "exposure_residents": displaced_pop,
             "pedestrian_routes_disrupted": max(1, int(area_m2 / 1200)),
@@ -278,7 +329,7 @@ def calculate_impacts(
 
         result["cost"] = {
             "shadow_cost_index": shadow_index,
-            "impact_level": "High" if shadow_index > 65 else ("Moderate" if shadow_index > 35 else "Low")
+            "impact_level": risk_lvl
         }
 
         result["land_overwrite_desc"] = f"Development footprint • {area_m2:,.0f} m² plot"

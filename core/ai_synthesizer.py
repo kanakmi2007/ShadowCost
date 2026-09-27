@@ -1,8 +1,25 @@
 """
 core/ai_synthesizer.py - OpenAI Policy Synthesis Briefing Engine
+Flagship Synthesis Core for ShadowCost
 """
 
 import os
+
+
+def generate_mitigation_badges(
+    intervention_type: str,
+    people_affected_str: str,
+    green_area_str: str,
+    travel_impact_str: str,
+    shadow_cost_index: int
+) -> dict:
+    """Generates structured 3 mitigation badges for AI Synthesis presentation."""
+    is_high_risk = shadow_cost_index >= 50
+    return {
+        "primary_risk": f"Social Exposure ({people_affected_str} residents)" if is_high_risk else "Localized Mobility Shift",
+        "canopy_mitigation": f"Preserve +{green_area_str} green buffer along right-of-way",
+        "recommended_shift": "Narrow alignment corridor by 4m to bypass dense clusters" if "Road" in intervention_type else "Incorporate rooftop canopy & public transit spur"
+    }
 
 
 def call_ai_synthesis(
