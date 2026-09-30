@@ -155,11 +155,12 @@ def render_exporter_stage():
         )
         if st.button("Preview Briefing Note", key="export_gen_brief", use_container_width=True):
             st.session_state["show_brief"] = True
+            st.rerun()
 
     st.markdown("<div style='height:1rem;'></div>", unsafe_allow_html=True)
 
     # Executive Briefing Note Panel
-    with st.expander("Executive Briefing Note Preview ▾", expanded=st.session_state.get("show_brief", False)):
+    with st.expander("Executive Briefing Note Preview", expanded=st.session_state.get("show_brief", False)):
         st.markdown(f"""
 ### Executive Briefing Note: {impacts['intervention_name']}
 * **Location Node:** {display_name}

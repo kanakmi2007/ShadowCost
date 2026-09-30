@@ -141,9 +141,9 @@ h1, h2, h3, h4, h5, h6 {
     letter-spacing: -0.01em !important;
 }
 
-p, span, label, div {
-    color: #8B97A6 !important;
-    font-family: 'Inter', sans-serif !important;
+p, label, div {
+    color: #8B97A6;
+    font-family: 'Inter', sans-serif;
 }
 
 .stMarkdown, .stText {
@@ -290,6 +290,19 @@ iframe[data-testid="stIframe"], iframe[title*="streamlit_folium"], div[data-test
     font-weight: 600 !important;
     letter-spacing: 0.08em !important;
     padding: 0.15rem 0.5rem !important;
+}
+
+div[data-testid="stExpander"] {
+    background-color: #0D131C !important;
+    border: 1px solid rgba(139, 151, 166, 0.15) !important;
+    border-radius: 6px !important;
+}
+
+div[data-testid="stExpander"] summary [data-testid="stMarkdownContainer"] p {
+    color: #E8EEF5 !important;
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 14px !important;
 }
 </style>
 """
