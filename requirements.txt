@@ -6,3 +6,4 @@ networkx
 geopandas
 shapely
 openai
+plotly

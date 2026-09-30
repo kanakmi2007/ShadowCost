@@ -68,6 +68,38 @@ def render_setup_stage(on_analyze_callback=None):
     m_left, s_right = st.columns([2.4, 1], gap="medium")
 
     with m_left:
+        # FEATURE 3: DYNAMIC MAP VECTOR LAYER TOGGLES
+        st.markdown(
+            """
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.88rem;color:#FFFFFF;">Scenario Studio Drawing Workspace</div>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+        l_c1, l_c2, l_c3, l_c4 = st.columns(4)
+        with l_c1:
+            show_res = st.checkbox("Residential (Cyan)", value=bool(st.session_state.get("map_show_res", True)), key="setup_toggle_res")
+            if show_res != st.session_state.get("map_show_res", True):
+                st.session_state["map_show_res"] = show_res
+                st.rerun()
+        with l_c2:
+            show_comm = st.checkbox("Commercial (Amber)", value=bool(st.session_state.get("map_show_comm", True)), key="setup_toggle_comm")
+            if show_comm != st.session_state.get("map_show_comm", True):
+                st.session_state["map_show_comm"] = show_comm
+                st.rerun()
+        with l_c3:
+            show_canopy = st.checkbox("Canopy (Emerald)", value=bool(st.session_state.get("map_show_canopy", True)), key="setup_toggle_canopy")
+            if show_canopy != st.session_state.get("map_show_canopy", True):
+                st.session_state["map_show_canopy"] = show_canopy
+                st.rerun()
+        with l_c4:
+            show_detour = st.checkbox("Detour Vector", value=bool(st.session_state.get("map_show_detour", True)), key="setup_toggle_detour")
+            if show_detour != st.session_state.get("map_show_detour", True):
+                st.session_state["map_show_detour"] = show_detour
+                st.rerun()
+
         # Standard Keyless OSM Map Layer
         m = folium.Map(
             location=[center_lat, center_lon],
@@ -77,48 +109,53 @@ def render_setup_stage(on_analyze_callback=None):
             control_scale=True
         )
 
-        # Apply CSS Filter directly to map tiles to convert standard OSM to dark mode cleanly
-        folium.Element("""
-        <style>
-            .leaflet-tile-pane {
-                filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3);
-            }
-        </style>
-        """).add_to(m.get_root().header)
+        # Apply CSS Filter & Animated Vector Corridor Laser Strokes directly to map tiles
+        folium.Element(DARK_TILE_CSS).add_to(m.get_root().header)
 
-        folium.Circle(
-            location=[center_lat, center_lon], radius=radius_km * 1000,
-            color="#10B981", weight=1.5, dash_array="6,6", fill=False,
-            tooltip=f"{radius_km:.1f} km catchment"
-        ).add_to(m)
+        if show_detour:
+            folium.Circle(
+                location=[center_lat, center_lon], radius=radius_km * 1000,
+                color="#10B981", weight=1.5, dash_array="6,6", fill=False,
+                tooltip=f"{radius_km:.1f} km catchment"
+            ).add_to(m)
 
         def style_feature(feature):
             cat = feature["properties"].get("category")
             edge, fill = CATEGORY_COLORS.get(cat, CATEGORY_COLORS["other"])
             return {"fillColor": edge, "color": edge, "weight": 1.0, "fillOpacity": 0.35}
 
-        folium.GeoJson(
-            demographic_gdf[["osmid", "name", "category", "area_m2_str", "exposure_idx", "geometry"]],
-            name="Urban Features",
-            style_function=style_feature,
-            tooltip=folium.GeoJsonTooltip(
-                fields=["name", "category", "exposure_idx", "area_m2_str"],
-                aliases=["Asset:", "Category:", "Exposure Index:", "Footprint Area:"]
-            )
-        ).add_to(m)
+        # Filter demographic features based on active layer toggles
+        active_cats = []
+        if show_res: active_cats.append("residential")
+        if show_comm: active_cats.append("commercial")
+        if show_canopy: active_cats.append("park")
+
+        filtered_gdf = demographic_gdf[demographic_gdf.category.isin(active_cats)] if active_cats else demographic_gdf.iloc[0:0]
+
+        if not filtered_gdf.empty:
+            folium.GeoJson(
+                filtered_gdf[["osmid", "name", "category", "area_m2_str", "exposure_idx", "geometry"]],
+                name="Urban Features",
+                style_function=style_feature,
+                tooltip=folium.GeoJsonTooltip(
+                    fields=["name", "category", "exposure_idx", "area_m2_str"],
+                    aliases=["Asset:", "Category:", "Exposure Index:", "Footprint Area:"]
+                )
+            ).add_to(m)
 
         # High-Contrast Glowing Vector Stroke
-        if is_road and drawn_geom is not None:
-            coords = [(p[1], p[0]) for p in drawn_geom.coords]
-            folium.PolyLine(coords, color="#10B981", weight=7, opacity=0.95, tooltip="Proposed Alignment Corridor").add_to(m)
-            folium.CircleMarker(coords[0], radius=7, color="#10B981", fill=True, fill_color="#10B981", tooltip="Start Node").add_to(m)
-            folium.CircleMarker(coords[-1], radius=7, color="#FF4757", fill=True, fill_color="#FF4757", tooltip="End Node").add_to(m)
-        elif is_structure and drawn_geom is not None:
-            folium.GeoJson(
-                drawn_geom.__geo_interface__,
-                style_function=lambda x: {"fillColor": "#00D2FF", "color": "#10B981", "weight": 3, "fillOpacity": 0.45},
-                tooltip="Proposed Development Footprint"
-            ).add_to(m)
+        if show_detour:
+            if is_road and drawn_geom is not None:
+                coords = [(p[1], p[0]) for p in drawn_geom.coords]
+                folium.PolyLine(coords, color="#10B981", weight=7, opacity=0.95, tooltip="Proposed Alignment Corridor").add_to(m)
+                folium.CircleMarker(coords[0], radius=7, color="#10B981", fill=True, fill_color="#10B981", tooltip="Start Node").add_to(m)
+                folium.CircleMarker(coords[-1], radius=7, color="#FF4757", fill=True, fill_color="#FF4757", tooltip="End Node").add_to(m)
+            elif is_structure and drawn_geom is not None:
+                folium.GeoJson(
+                    drawn_geom.__geo_interface__,
+                    style_function=lambda x: {"fillColor": "#00D2FF", "color": "#10B981", "weight": 3, "fillOpacity": 0.45},
+                    tooltip="Proposed Development Footprint"
+                ).add_to(m)
 
         Draw(
             export=False, position="topleft",
@@ -126,9 +163,9 @@ def render_setup_stage(on_analyze_callback=None):
             edit_options={"edit": True, "remove": True}
         ).add_to(m)
 
-        # Explicit height=550 map canvas container fix
+        # Explicit height=520 map canvas container fix
         st_folium(
-            m, key="intervention_map", width=None, height=550,
+            m, key="intervention_map", width=None, height=520,
             returned_objects=["all_drawings", "last_active_drawing"]
         )
 
@@ -137,7 +174,7 @@ def render_setup_stage(on_analyze_callback=None):
             f"""
             <div class="map-hud-bar">
                 <span>CURSOR: {center_lat:.4f}° N, {center_lon:.4f}° E</span>
-                <span>LAYERS: [Corridor | Residential | Commercial | Canopy Mask]</span>
+                <span>LAYERS: [Residential: {'ON' if show_res else 'OFF'} | Commercial: {'ON' if show_comm else 'OFF'} | Canopy: {'ON' if show_canopy else 'OFF'} | Detour: {'ON' if show_detour else 'OFF'}]</span>
             </div>
             """,
             unsafe_allow_html=True

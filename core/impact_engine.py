@@ -36,12 +36,17 @@ def calculate_impacts(
     gem_type: str,
     demographic_gdf: gpd.GeoDataFrame,
     road_width: float = 25.0,
-    detour_factor: float = 1.35
+    detour_factor: float = 1.35,
+    green_buffer_offset: float = 0.0,
+    row_width_adj: float = 0.0,
+    transit_spur: bool = False,
+    forecast_year: int = 2026
 ):
     """
     Executes spatial intersection analysis using GeoPandas UTM projection.
     Returns structured metrics across the 4 lenses: Social, Environment, Mobility, Infrastructure/Cost.
-    Includes normalized 0-100 radar sub-scores and risk classifications.
+    Includes live Policy Mitigation Sandbox adjustments (green buffer offset, ROW adj, transit spur)
+    and 10-Year Predictive Timeline Forecasting decay/growth functions (2026, 2028, 2031, 2035).
     """
     result = {
         "is_baseline": True,
@@ -81,6 +86,12 @@ def calculate_impacts(
         "shadow_cost_index": 12,
         "risk_level": "Low",
         "primary_risk_domain": "Environment",
+
+        # Policy & Timeline Metadata
+        "forecast_year": forecast_year,
+        "green_buffer_offset": green_buffer_offset,
+        "row_width_adj": row_width_adj,
+        "transit_spur": transit_spur,
 
         # Detailed Categorized Lenses
         "social": {
@@ -122,6 +133,8 @@ def calculate_impacts(
     result["is_road"] = is_road
     result["is_structure"] = is_structure
 
+    effective_road_width = max(5.0, road_width + row_width_adj)
+
     # ---------------------------------------------------------
     # 1. ROAD CORRIDOR ALIGNMENT INTERVENTION
     # ---------------------------------------------------------
@@ -130,7 +143,7 @@ def calculate_impacts(
         line_gdf = gpd.GeoDataFrame([{"geometry": drawn_geom}], crs="EPSG:4326")
         line_utm = line_gdf.to_crs(utm_crs).geometry.iloc[0]
         length_meters = float(line_utm.length)
-        corridor_utm = line_utm.buffer(road_width / 2)
+        corridor_utm = line_utm.buffer(effective_road_width / 2)
 
         mask = demographic_utm.geometry.intersects(corridor_utm)
         affected = demographic_gdf[mask]
@@ -145,13 +158,47 @@ def calculate_impacts(
         for _, row in demographic_utm[(demographic_utm.category == "park") & mask].iterrows():
             green_loss_m2 += float(row.geometry.intersection(corridor_utm).area)
 
+        # Apply Policy Sandbox Green Buffer Offset Mitigation (recalculates canopy loss)
+        if green_buffer_offset > 0:
+            mitigation_factor = max(0.10, 1.0 - (green_buffer_offset / 25.0))
+            green_loss_m2 = green_loss_m2 * mitigation_factor
+
+        # 10-Year Timeline Predictive Decay/Growth Functions
+        if forecast_year == 2026:
+            # Construction Phase: Peak initial delay & noise disruption
+            timeline_delay_mult = 1.40
+            timeline_social_mult = 1.15
+            timeline_canopy_mult = 1.00
+        elif forecast_year == 2028:
+            # Near-Term Operational: Baseline initial canopy loss peak
+            timeline_delay_mult = 1.00
+            timeline_social_mult = 1.00
+            timeline_canopy_mult = 1.00
+        elif forecast_year == 2031:
+            # Mid-Term Maturation: 10% canopy regrowth, 5% transit efficiency gain
+            timeline_delay_mult = 0.95
+            timeline_social_mult = 0.95
+            timeline_canopy_mult = 0.90
+        else: # 2035
+            # Long-Term Stabilization: 20% canopy regrowth, 15% long-term transit gains
+            timeline_delay_mult = 0.85
+            timeline_social_mult = 0.90
+            timeline_canopy_mult = 0.80
+
+        green_loss_m2 = green_loss_m2 * timeline_canopy_mult
         green_loss_ha = green_loss_m2 / 10000.0
-        displaced_pop = apt_count * 180 + other_res_count * 45 + comm_count * 12
+
+        displaced_pop = int((apt_count * 180 + other_res_count * 45 + comm_count * 12) * timeline_social_mult)
         detour_baseline = length_meters * detour_factor
         distance_saved = max(0.0, detour_baseline - length_meters)
         pct_travel_change = (distance_saved / detour_baseline * 100) if detour_baseline else 0.0
-        
-        added_distance_km = round(distance_saved / 1000.0, 1) if distance_saved else 0.8
+        pct_travel_change = pct_travel_change * timeline_delay_mult
+
+        # Apply Public Transit Spur Policy (-15% travel delay penalty)
+        if transit_spur:
+            pct_travel_change = pct_travel_change * 0.85
+
+        added_distance_km = round((distance_saved / 1000.0) * (0.85 if transit_spur else 1.0), 1) if distance_saved else 0.8
         trips_rerouted = int(length_meters * 1.8) + 1200
         trees_removed = int(green_loss_m2 * 0.12)
 
@@ -180,12 +227,12 @@ def calculate_impacts(
         
         result["additional_travel_pct"] = round(pct_travel_change, 1)
         result["additional_travel_str"] = f"+{pct_travel_change:.0f}%"
-        result["travel_subtext"] = "avg. trip"
+        result["travel_subtext"] = "avg. trip" if not transit_spur else "avg. trip (transit spur active)"
         
         result["green_area_ha"] = round(green_loss_ha, 1)
         result["green_area_m2"] = green_loss_m2
         result["green_area_str"] = f"{green_loss_ha:.1f} ha" if green_loss_ha >= 0.1 else f"{green_loss_m2:,.0f} m²"
-        result["green_cover_change_str"] = f"-{min(25, max(3, int(green_loss_ha * 6)))}% cover"
+        result["green_cover_change_str"] = f"-{min(25, max(1, int(green_loss_ha * 6)))}% cover"
         
         result["affected_assets_count"] = num_affected
         result["affected_assets_str"] = f"{num_affected}"
@@ -200,7 +247,6 @@ def calculate_impacts(
         risk_lvl = "Critical" if shadow_index >= 75 else ("High" if shadow_index >= 50 else ("Moderate" if shadow_index >= 30 else "Low"))
         result["risk_level"] = risk_lvl
         
-        # Primary Risk Domain
         scores = {"Social Exposure": soc_s, "Canopy Loss": env_s, "Mobility Shift": mob_s, "Asset Displacement": inf_s}
         result["primary_risk_domain"] = max(scores, key=scores.get)
 
@@ -215,7 +261,7 @@ def calculate_impacts(
 
         result["environment"] = {
             "tree_canopy_removed_text": f"~{trees_removed} trees" if trees_removed else "~45 trees",
-            "green_cover_change_pct": min(25, max(3, int(green_loss_ha * 6))),
+            "green_cover_change_pct": min(25, max(1, int(green_loss_ha * 6))),
             "heat_exposure_risk": "Moderate" if green_loss_ha > 0.5 else "Low"
         }
 
@@ -230,7 +276,7 @@ def calculate_impacts(
             "impact_level": risk_lvl
         }
 
-        result["land_overwrite_desc"] = f"{length_meters:,.0f} m roadway × {road_width} m corridor"
+        result["land_overwrite_desc"] = f"{length_meters:,.0f} m roadway × {effective_road_width:.0f} m corridor"
         result["demolished_summary_str"] = ", ".join(parts) if parts else "open right-of-way"
 
     # ---------------------------------------------------------
@@ -255,9 +301,35 @@ def calculate_impacts(
         for _, row in demographic_utm[(demographic_utm.category == "park") & mask].iterrows():
             green_loss_m2 += float(row.geometry.intersection(poly_utm).area)
 
+        if green_buffer_offset > 0:
+            mitigation_factor = max(0.10, 1.0 - (green_buffer_offset / 25.0))
+            green_loss_m2 = green_loss_m2 * mitigation_factor
+
+        # 10-Year Timeline Predictive Decay/Growth Functions
+        if forecast_year == 2026:
+            timeline_delay_mult = 1.40
+            timeline_social_mult = 1.15
+            timeline_canopy_mult = 1.00
+        elif forecast_year == 2028:
+            timeline_delay_mult = 1.00
+            timeline_social_mult = 1.00
+            timeline_canopy_mult = 1.00
+        elif forecast_year == 2031:
+            timeline_delay_mult = 0.95
+            timeline_social_mult = 0.95
+            timeline_canopy_mult = 0.90
+        else: # 2035
+            timeline_delay_mult = 0.85
+            timeline_social_mult = 0.90
+            timeline_canopy_mult = 0.80
+
+        green_loss_m2 = green_loss_m2 * timeline_canopy_mult
         green_loss_ha = green_loss_m2 / 10000.0
-        displaced_pop = apt_count * 180 + other_res_count * 45
-        induced_traffic = int(area_m2 * 0.22)
+        displaced_pop = int((apt_count * 180 + other_res_count * 45) * timeline_social_mult)
+        induced_traffic = int(area_m2 * 0.22 * timeline_delay_mult)
+        if transit_spur:
+            induced_traffic = int(induced_traffic * 0.85)
+
         trees_removed = int(green_loss_m2 * 0.15)
 
         soc_s = min(100, max(15, int((displaced_pop / 350.0) * 100)))
@@ -283,12 +355,12 @@ def calculate_impacts(
 
         result["additional_travel_pct"] = round(induced_traffic / 100.0, 1)
         result["additional_travel_str"] = f"+{int(induced_traffic / 120)}%"
-        result["travel_subtext"] = "induced trips"
+        result["travel_subtext"] = "induced trips" if not transit_spur else "induced trips (transit spur active)"
 
         result["green_area_ha"] = round(green_loss_ha, 1)
         result["green_area_m2"] = green_loss_m2
         result["green_area_str"] = f"{green_loss_ha:.1f} ha" if green_loss_ha >= 0.1 else f"{green_loss_m2:,.0f} m²"
-        result["green_cover_change_str"] = f"-{min(30, max(2, int(green_loss_ha * 8)))}% cover"
+        result["green_cover_change_str"] = f"-{min(30, max(1, int(green_loss_ha * 8)))}% cover"
 
         result["affected_assets_count"] = num_affected
         result["affected_assets_str"] = f"{num_affected}"
@@ -317,7 +389,7 @@ def calculate_impacts(
 
         result["environment"] = {
             "tree_canopy_removed_text": f"~{trees_removed} trees" if trees_removed else "~30 trees",
-            "green_cover_change_pct": min(30, max(2, int(green_loss_ha * 8))),
+            "green_cover_change_pct": min(30, max(1, int(green_loss_ha * 8))),
             "heat_exposure_risk": "High" if green_loss_ha > 0.8 else "Moderate"
         }
 
@@ -336,3 +408,4 @@ def calculate_impacts(
         result["demolished_summary_str"] = ", ".join(parts) if parts else f"open plot ({area_m2:,.0f} m²)"
 
     return result
+

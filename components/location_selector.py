@@ -124,21 +124,46 @@ def render_location_stage(on_next_callback=None):
             zoom_control=False
         )
 
-        # Apply CSS Filter directly to map tiles to convert standard OSM to dark mode cleanly
-        folium.Element("""
-        <style>
-            .leaflet-tile-pane {
-                filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3);
-            }
-        </style>
-        """).add_to(m.get_root().header)
+        # Inject animated vector style directly into map header
+        m.get_root().header.add_child(
+            folium.Element("""
+            <style>
+                @keyframes dash {
+                    to { stroke-dashoffset: -30; }
+                }
+                .animated-vector-path {
+                    animation: dash 1.5s linear infinite !important;
+                }
+            </style>
+            """)
+        )
+
+        # Apply CSS Filter & Animated Vector Corridor Laser Strokes directly to map tiles
+        folium.Element(DARK_TILE_CSS).add_to(m.get_root().header)
+
+        # Sample animated catchment corridor polyline
+        corridor_coords = [
+            [center_lat - 0.005, center_lon - 0.005],
+            [center_lat, center_lon],
+            [center_lat + 0.005, center_lon + 0.005]
+        ]
+        folium.PolyLine(
+            locations=corridor_coords,
+            color="#10B981",
+            weight=5,
+            opacity=0.9,
+            dash_array="10, 20",
+            className="animated-vector-path",
+            tooltip="Live Animated Vector Alignment"
+        ).add_to(m)
 
         folium.Circle(
             location=[center_lat, center_lon],
             radius=radius_km * 1000,
             color="#10B981",
-            weight=2,
-            dash_array="6,6",
+            weight=2.5,
+            dash_array="10, 20",
+            className="animated-vector-path",
             fill=True,
             fill_color="#10B981",
             fill_opacity=0.12

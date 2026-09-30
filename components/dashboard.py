@@ -6,12 +6,52 @@ Flagship Impact Dashboard Core for ShadowCost
 import streamlit as st
 import folium
 from streamlit_folium import st_folium
+import plotly.graph_objects as go
 from config import CATEGORY_COLORS, SVG_ICONS, OSM_TILES, OSM_ATTR, DARK_TILE_CSS
 from core.geocoding import geocode_city_with_buffer
 from core.demographics import generate_demographic_features
 from core.impact_engine import parse_drawing_geometry, calculate_impacts
 from core.ai_synthesizer import call_ai_synthesis, generate_mitigation_badges
 from core.scenario_manager import save_scenario, get_scenarios
+
+
+def draw_plotly_radar_chart(impacts: dict) -> go.Figure:
+    """Renders interactive Plotly radar chart with smooth transition animations."""
+    categories = ['Social', 'Canopy', 'Mobility', 'Infrastructure']
+    
+    val_social = min(100, max(15, int(impacts.get('people_affected', 0) / 120.0)))
+    val_green = min(100, max(15, int(impacts.get('green_area_ha', 0) * 18.0)))
+    val_travel = min(100, max(15, int(impacts.get('additional_travel_pct', 0) * 2.2)))
+    val_assets = min(100, max(15, int(impacts.get('affected_assets_count', 0) * 12.0)))
+    
+    values = [val_social, val_green, val_travel, val_assets, val_social]
+    cat_closed = categories + [categories[0]]
+    
+    fig = go.Figure()
+    fig.add_trace(go.Scatterpolar(
+        r=values,
+        theta=cat_closed,
+        fill='toself',
+        fillcolor='rgba(16, 185, 129, 0.25)',
+        line=dict(color='#10B981', width=3),
+        marker=dict(size=6, color='#00F5A0'),
+        name='Live Spatial Exposure'
+    ))
+    
+    fig.update_layout(
+        transition={"duration": 500, "easing": "cubic-in-out"},
+        polar=dict(
+            radialaxis=dict(visible=True, range=[0, 100], color="#6B7280", gridcolor="#E5E7EB"),
+            angularaxis=dict(color="#111111", gridcolor="#E5E7EB"),
+            bgcolor="#FFFFFF",
+        ),
+        paper_bgcolor="#FFFFFF",
+        plot_bgcolor="#FFFFFF",
+        margin=dict(l=25, r=25, t=25, b=25),
+        height=210,
+        showlegend=False
+    )
+    return fig
 
 
 def draw_radial_arc_gauge(score: int, risk_level: str) -> str:
@@ -49,6 +89,12 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
     demo_seed = st.session_state.get("demo_seed", 42)
     api_key = st.session_state.get("openai_api_key", "")
 
+    # Retrieve Policy Sandbox & Timeline Forecast state variables
+    policy_green_buffer = float(st.session_state.get("policy_green_buffer", 0.0))
+    policy_row_adj = float(st.session_state.get("policy_row_adj", 0.0))
+    policy_transit_spur = bool(st.session_state.get("policy_transit_spur", False))
+    timeline_year = int(st.session_state.get("timeline_year", 2026))
+
     location_result = geocode_city_with_buffer(current_city, buffer_meters=radius_km * 1000.0)
     if location_result is None:
         st.error("Please select a valid location in Step 1 first.")
@@ -65,13 +111,17 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
             lambda c: "HIGH (85/100)" if c == "residential" else ("MODERATE (55/100)" if c == "commercial" else "LOW (20/100)")
         )
 
-    # Parse Drawing & Run Calculations
+    # Parse Drawing & Run Real-Time Calculations with Policy Sandbox & Timeline Forecasting
     map_state = st.session_state.get("intervention_map", {})
     drawn_geom, gem_type = parse_drawing_geometry(map_state)
 
     impacts = calculate_impacts(
         drawn_geom, gem_type, demographic_gdf,
-        road_width=road_width, detour_factor=detour_factor
+        road_width=road_width, detour_factor=detour_factor,
+        green_buffer_offset=policy_green_buffer,
+        row_width_adj=policy_row_adj,
+        transit_spur=policy_transit_spur,
+        forecast_year=timeline_year
     )
 
     idx_score = impacts["shadow_cost_index"]
@@ -84,7 +134,7 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
         st.markdown(
             f"""
             <div style="margin-bottom:0.85rem;">
-                <div style="font-family:'Space Grotesk',sans-serif;font-size:0.75rem;color:#10B981;font-weight:700;letter-spacing:0.08em;display:flex;align-items:center;gap:0.4rem;">
+                <div style="font-family:'Space Grotesk',sans-serif;font-size:0.75rem;color:#14B8A6;font-weight:700;letter-spacing:0.08em;display:flex;align-items:center;gap:0.4rem;">
                     {SVG_ICONS['radar']} SPATIAL IMPACT COMMAND CENTER
                 </div>
                 <h1 style="font-family:'Space Grotesk',sans-serif;font-size:2.1rem;font-weight:800;color:#FFFFFF;letter-spacing:-0.03em;margin-top:0.1rem;margin-bottom:0.25rem;">
@@ -95,7 +145,7 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
                     <span>•</span>
                     <span style="color:#00D2FF;">{impacts["intervention_name"]} ({impacts["dimension_val"]})</span>
                     <span>•</span>
-                    <span class="badge badge-emerald">LIVE MODEL ACTIVE</span>
+                    <span class="badge badge-emerald">FORECAST: {timeline_year}</span>
                 </div>
             </div>
             """,
@@ -120,6 +170,7 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
 
     with col_gauge:
         st.markdown(draw_radial_arc_gauge(idx_score, risk_lbl), unsafe_allow_html=True)
+        st.plotly_chart(draw_plotly_radar_chart(impacts), use_container_width=True, config={'displayModeBar': False})
 
     with col_metrics:
         m1, m2 = st.columns(2)
@@ -172,10 +223,10 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
         st.markdown(
             f"""
             <div class="glass-panel" style="padding:0.75rem 1rem;display:flex;align-items:center;gap:1.5rem;margin-bottom:0.75rem;">
-                <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.78rem;color:#10B981;">WHAT CHANGED (Slot B vs Slot A):</span>
+                <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.78rem;color:#14B8A6;">WHAT CHANGED (Slot B vs Slot A):</span>
                 <span class="mono" style="font-size:0.82rem;color:#FFFFFF;">Resident Delta: {pop_d_str}</span>
                 <span class="mono" style="font-size:0.82rem;color:#00D2FF;">Travel Delta: {travel_d_str}</span>
-                <span class="mono" style="font-size:0.82rem;color:#10B981;">Canopy Delta: {green_d_str}</span>
+                <span class="mono" style="font-size:0.82rem;color:#14B8A6;">Canopy Delta: {green_d_str}</span>
             </div>
             """,
             unsafe_allow_html=True
@@ -183,7 +234,7 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
     else:
         st.markdown(
             """
-            <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#9CA3AF;margin-bottom:0.6rem;padding:0.4rem 0.75rem;background:rgba(255,255,255,0.02);border:1px solid #1E293B;border-radius:6px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#9CA3AF;margin-bottom:0.6rem;padding:0.4rem 0.75rem;background:rgba(255,255,255,0.02);border:1px solid rgba(107,114,128,0.2);border-radius:6px;">
                 SCENARIO DELTA TRACKING: Save intervention into Slot A & Slot B to render live baseline comparison matrix.
             </div>
             """,
@@ -194,17 +245,37 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
     r_map, r_info = st.columns([1.4, 1], gap="medium")
 
     with r_map:
+        # FEATURE 3: DYNAMIC MAP VECTOR LAYER TOGGLES
         st.markdown(
             """
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.9rem;color:#FFFFFF;">OpenStreetMap Dark Vector Workspace</div>
-                <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#9CA3AF;">
-                    <span style="color:#10B981;">● Vector Corridor</span> &nbsp;<span style="color:#00D2FF;">● Residential</span> &nbsp;<span style="color:#FFA500;">● Commercial</span>
-                </div>
+                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.88rem;color:#FFFFFF;">OpenStreetMap Dark Vector Workspace</div>
             </div>
             """,
             unsafe_allow_html=True
         )
+
+        l_c1, l_c2, l_c3, l_c4 = st.columns(4)
+        with l_c1:
+            show_res = st.checkbox("Residential (Cyan)", value=bool(st.session_state.get("map_show_res", True)), key="dash_toggle_res")
+            if show_res != st.session_state.get("map_show_res", True):
+                st.session_state["map_show_res"] = show_res
+                st.rerun()
+        with l_c2:
+            show_comm = st.checkbox("Commercial (Amber)", value=bool(st.session_state.get("map_show_comm", True)), key="dash_toggle_comm")
+            if show_comm != st.session_state.get("map_show_comm", True):
+                st.session_state["map_show_comm"] = show_comm
+                st.rerun()
+        with l_c3:
+            show_canopy = st.checkbox("Canopy (Emerald)", value=bool(st.session_state.get("map_show_canopy", True)), key="dash_toggle_canopy")
+            if show_canopy != st.session_state.get("map_show_canopy", True):
+                st.session_state["map_show_canopy"] = show_canopy
+                st.rerun()
+        with l_c4:
+            show_detour = st.checkbox("Detour Vector", value=bool(st.session_state.get("map_show_detour", True)), key="dash_toggle_detour")
+            if show_detour != st.session_state.get("map_show_detour", True):
+                st.session_state["map_show_detour"] = show_detour
+                st.rerun()
 
         # Standard Keyless OSM Map Layer
         m = folium.Map(
@@ -215,64 +286,140 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
             control_scale=True
         )
 
-        # Apply CSS Filter directly to map tiles to convert standard OSM to dark mode cleanly
-        folium.Element("""
-        <style>
-            .leaflet-tile-pane {
-                filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3);
-            }
-        </style>
-        """).add_to(m.get_root().header)
+        # Inject animated vector style directly into map header
+        m.get_root().header.add_child(
+            folium.Element("""
+            <style>
+                @keyframes dash {
+                    to { stroke-dashoffset: -30; }
+                }
+                .animated-vector-path {
+                    animation: dash 1.5s linear infinite !important;
+                }
+            </style>
+            """)
+        )
 
-        folium.Circle(
-            location=[center_lat, center_lon], radius=radius_km * 1000,
-            color="#10B981", weight=1.5, dash_array="6,6", fill=False
-        ).add_to(m)
+        # Apply CSS Filter & Animated Vector Corridor Laser Strokes directly to map tiles
+        folium.Element(DARK_TILE_CSS).add_to(m.get_root().header)
+
+        if show_detour:
+            folium.Circle(
+                location=[center_lat, center_lon], radius=radius_km * 1000,
+                color="#10B981", weight=2, dash_array="10, 20", className="animated-vector-path", fill=False
+            ).add_to(m)
 
         def style_feature(feature):
             cat = feature["properties"].get("category")
             edge, fill = CATEGORY_COLORS.get(cat, CATEGORY_COLORS["other"])
             return {"fillColor": edge, "color": edge, "weight": 1.0, "fillOpacity": 0.35}
 
-        folium.GeoJson(
-            demographic_gdf[["osmid", "name", "category", "area_m2_str", "exposure_idx", "geometry"]],
-            style_function=style_feature,
-            tooltip=folium.GeoJsonTooltip(
-                fields=["name", "category", "exposure_idx", "area_m2_str"],
-                aliases=["Asset:", "Category:", "Exposure Index:", "Footprint Area:"]
-            )
-        ).add_to(m)
+        # Filter demographic features based on dynamic layer toggles
+        active_cats = []
+        if show_res: active_cats.append("residential")
+        if show_comm: active_cats.append("commercial")
+        if show_canopy: active_cats.append("park")
+
+        filtered_gdf = demographic_gdf[demographic_gdf.category.isin(active_cats)] if active_cats else demographic_gdf.iloc[0:0]
+
+        if not filtered_gdf.empty:
+            folium.GeoJson(
+                filtered_gdf[["osmid", "name", "category", "area_m2_str", "exposure_idx", "geometry"]],
+                style_function=style_feature,
+                tooltip=folium.GeoJsonTooltip(
+                    fields=["name", "category", "exposure_idx", "area_m2_str"],
+                    aliases=["Asset:", "Category:", "Exposure Index:", "Footprint Area:"]
+                )
+            ).add_to(m)
 
         is_road = impacts["is_road"]
         is_structure = impacts["is_structure"]
 
-        if is_road and drawn_geom is not None:
-            coords = [(p[1], p[0]) for p in drawn_geom.coords]
-            folium.PolyLine(coords, color="#10B981", weight=7, opacity=0.95, tooltip="Proposed Alignment").add_to(m)
-            folium.CircleMarker(coords[0], radius=7, color="#10B981", fill=True, fill_color="#10B981").add_to(m)
-            folium.CircleMarker(coords[-1], radius=7, color="#FF4757", fill=True, fill_color="#FF4757").add_to(m)
-        elif is_structure and drawn_geom is not None:
-            folium.GeoJson(
-                drawn_geom.__geo_interface__,
-                style_function=lambda x: {"fillColor": "#00D2FF", "color": "#10B981", "weight": 3, "fillOpacity": 0.45},
-                tooltip="Proposed Footprint"
-            ).add_to(m)
+        if show_detour:
+            if is_road and drawn_geom is not None:
+                coords = [(p[1], p[0]) for p in drawn_geom.coords]
+                folium.PolyLine(
+                    locations=coords,
+                    color="#10B981",
+                    weight=6,
+                    opacity=0.95,
+                    dash_array="10, 20",
+                    className="animated-vector-path",
+                    tooltip="Proposed Alignment (Live Animated Vector)"
+                ).add_to(m)
+                folium.CircleMarker(coords[0], radius=7, color="#10B981", fill=True, fill_color="#10B981").add_to(m)
+                folium.CircleMarker(coords[-1], radius=7, color="#FF4757", fill=True, fill_color="#FF4757").add_to(m)
+            elif is_structure and drawn_geom is not None:
+                folium.GeoJson(
+                    drawn_geom.__geo_interface__,
+                    style_function=lambda x: {"fillColor": "#00D2FF", "color": "#10B981", "weight": 3, "fillOpacity": 0.45},
+                    tooltip="Proposed Footprint"
+                ).add_to(m)
 
-        # Explicit height=550 map canvas container fix
-        st_folium(m, key="impact_command_map", width=None, height=550, returned_objects=[])
+        # Explicit height=520 map canvas container fix
+        st_folium(m, key="impact_command_map", width=None, height=520, returned_objects=[])
 
-        # Bottom Map HUD Bar
+        # FEATURE 2: 10-YEAR PREDICTIVE TIMELINE SIMULATOR SLIDER
         st.markdown(
             f"""
-            <div class="map-hud-bar">
-                <span>CURSOR: {center_lat:.4f}° N, {center_lon:.4f}° E</span>
-                <span>PROJECTION: EPSG:4326 / EPSG:3857 | ZOOM: z=15</span>
+            <div style="margin-top:0.6rem;padding:0.6rem 0.9rem;background:#11161D;border:1px solid rgba(107,114,128,0.2);border-radius:8px;">
+                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.8rem;color:#F7F7F5;display:flex;justify-content:space-between;align-items:center;">
+                    <span>10-YEAR PREDICTIVE TIMELINE SIMULATOR</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#14B8A6;background:rgba(15,118,110,0.15);padding:0.15rem 0.5rem;border-radius:3px;">
+                        FORECAST: {timeline_year}
+                    </span>
+                </div>
             </div>
             """,
             unsafe_allow_html=True
         )
 
+        new_year = st.select_slider(
+            "Forecast Horizon Year",
+            options=[2026, 2028, 2031, 2035],
+            value=timeline_year,
+            key="dashboard_timeline_year_slider"
+        )
+        if new_year != timeline_year:
+            st.session_state["timeline_year"] = new_year
+            st.rerun()
+
+        year_descs = {
+            2026: "2026 (Construction): Peak initial delay multiplier (1.4x), temporary social noise disruption.",
+            2028: "2028 (Near-Term): Baseline operational state, initial canopy loss peak.",
+            2031: "2031 (Mid-Term): 10% canopy regrowth recovery, 5% transit efficiency gain.",
+            2035: "2035 (Long-Term): 20% green buffer regrowth recovery, 15% long-term transit gains."
+        }
+        st.caption(f"Phase Characteristics: {year_descs[timeline_year]}")
+
     with r_info:
+        # FEATURE 1: INTERACTIVE POLICY MITIGATION SANDBOX PANEL
+        with st.expander("POLICY MITIGATION SANDBOX", expanded=True):
+            st.markdown(
+                """
+                <div style="font-family:'Space Grotesk',sans-serif;font-size:0.8rem;font-weight:600;color:#5EEAD4;margin-bottom:0.3rem;">
+                    Live Policy Adjustments & Offsets
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+            p_col1, p_col2 = st.columns(2)
+            with p_col1:
+                new_gb = st.slider("Green Buffer (m)", 0, 20, int(policy_green_buffer), 1, key="dash_gb_offset_slider")
+                if new_gb != policy_green_buffer:
+                    st.session_state["policy_green_buffer"] = float(new_gb)
+                    st.rerun()
+            with p_col2:
+                new_row = st.slider("ROW Width Adj (m)", -5, 5, int(policy_row_adj), 1, key="dash_row_adj_slider")
+                if new_row != policy_row_adj:
+                    st.session_state["policy_row_adj"] = float(new_row)
+                    st.rerun()
+
+            new_transit = st.checkbox("Public Transit Spur (-15% delay penalty)", value=policy_transit_spur, key="dash_transit_spur_cb")
+            if new_transit != policy_transit_spur:
+                st.session_state["policy_transit_spur"] = new_transit
+                st.rerun()
+
         # AI MITIGATION SYNTHESIS CARD WITH 3 DISTINCT COLOR BADGES
         ai_memo = call_ai_synthesis(
             current_city, impacts["intervention_name"], impacts["dimension_val"],
@@ -292,24 +439,24 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
 
         st.markdown(
             f"""
-            <div class="glass-panel" style="padding:1.1rem;margin-bottom:0.75rem;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;">
-                    <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.9rem;color:#10B981;display:flex;align-items:center;gap:0.4rem;">
+            <div class="glass-panel" style="padding:1rem;margin-bottom:0.75rem;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
+                    <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.88rem;color:#14B8A6;display:flex;align-items:center;gap:0.4rem;">
                         {SVG_ICONS['sparkles']} AI MITIGATION BRIEFING
                     </div>
                     <span class="badge badge-emerald">POLICY SYNTHESIS</span>
                 </div>
-                <div style="font-size:0.82rem;color:#E5E7EB;line-height:1.55;margin-bottom:0.85rem;">
+                <div style="font-size:0.8rem;color:#E5E7EB;line-height:1.5;margin-bottom:0.75rem;">
                     {ai_memo}
                 </div>
-                <div style="display:flex;flex-direction:column;gap:0.4rem;">
-                    <div class="badge badge-rose" style="width:100%;justify-content:flex-start;">
+                <div style="display:flex;flex-direction:column;gap:0.35rem;">
+                    <div class="badge badge-rose" style="width:100%;justify-flex-start;">
                         PRIMARY RISK: {badge_data['primary_risk']}
                     </div>
-                    <div class="badge badge-emerald" style="width:100%;justify-content:flex-start;">
+                    <div class="badge badge-emerald" style="width:100%;justify-flex-start;">
                         CANOPY MITIGATION: {badge_data['canopy_mitigation']}
                     </div>
-                    <div class="badge badge-cyan" style="width:100%;justify-content:flex-start;">
+                    <div class="badge badge-cyan" style="width:100%;justify-flex-start;">
                         RECOMMENDED SHIFT: {badge_data['recommended_shift']}
                     </div>
                 </div>
@@ -321,8 +468,8 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
         # DENSE EVIDENCE EXPLORER MATRIX WITH EXPLICIT STATUS TAGS
         st.markdown(
             f"""
-            <div class="glass-panel" style="padding:1rem;margin-bottom:0.75rem;">
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.88rem;color:#FFFFFF;margin-bottom:0.5rem;">
+            <div class="glass-panel" style="padding:0.9rem;margin-bottom:0.75rem;">
+                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.85rem;color:#FFFFFF;margin-bottom:0.4rem;">
                     EVIDENCE EXPLORER TABLE
                 </div>
                 <table class="dark-table">
@@ -340,7 +487,7 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
                             <td class="mono">{impacts['people_affected_str']} residents</td>
                         </tr>
                         <tr>
-                            <td style="color:#10B981;font-weight:700;">Environment</td>
+                            <td style="color:#14B8A6;font-weight:700;">Environment</td>
                             <td><span class="badge badge-emerald">[NOMINAL]</span></td>
                             <td class="mono">{impacts['green_area_str']} ({impacts['environment']['tree_canopy_removed_text']})</td>
                         </tr>
@@ -371,3 +518,4 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
             if st.button("Save to Slot B", key="dash_save_b", use_container_width=True):
                 save_scenario("B", impacts, f"Slot B ({impacts['intervention_name']})")
                 st.success("Saved into Slot B")
+

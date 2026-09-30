@@ -118,8 +118,8 @@ with nav_col1:
         <div style="display:flex;align-items:center;gap:0.6rem;padding-top:0.2rem;">
             {SVG_ICONS['logo']}
             <div>
-                <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.15rem;color:#FFFFFF;letter-spacing:-0.02em;">ShadowCost</span>
-                <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#10B981;background:rgba(16,185,129,0.12);padding:0.15rem 0.4rem;border-radius:4px;margin-left:0.3rem;">v2.5</span>
+                <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.15rem;color:#F7F7F5;letter-spacing:-0.02em;">ShadowCost</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#5EEAD4;background:rgba(15,118,110,0.15);padding:0.15rem 0.4rem;border-radius:4px;border:1px solid rgba(15,118,110,0.35);margin-left:0.3rem;">v2.5</span>
             </div>
         </div>
         """,
