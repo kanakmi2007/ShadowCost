@@ -81,7 +81,7 @@ def trigger_quick_demo_mode():
 
 # Sidebar for advanced assumptions & API key configuration
 with st.sidebar:
-    st.markdown("<h3 style='font-family: Space Grotesk, sans-serif;'>Engine Configuration</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='font-family: \"Inter\", sans-serif; font-weight: 600;'>Engine Configuration</h3>", unsafe_allow_html=True)
     st.caption("Geospatial parameters & AI Briefing settings")
 
     demo_s = st.number_input("Demo seed", min_value=1, max_value=9999, value=int(st.session_state["demo_seed"]), step=1)
@@ -110,17 +110,14 @@ with st.sidebar:
 TABS = ["Overview", "Spatial Analysis", "Command Center", "Scenario Lab", "Methodology", "Executive Report"]
 active_idx = st.session_state["active_tab_idx"]
 
-nav_col1, nav_col2, nav_col3 = st.columns([1.0, 5.2, 1.4], gap="small")
+nav_col1, nav_col2, nav_col3 = st.columns([1.2, 5.4, 1.1], gap="small")
 
 with nav_col1:
     st.markdown(
         f"""
-        <div style="display:flex;align-items:center;gap:0.6rem;padding-top:0.2rem;">
+        <div style="display:flex;align-items:center;gap:0.5rem;padding-top:0.25rem;">
             {SVG_ICONS['logo']}
-            <div>
-                <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.15rem;color:#F7F7F5;letter-spacing:-0.02em;">ShadowCost</span>
-                <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#5EEAD4;background:rgba(15,118,110,0.15);padding:0.15rem 0.4rem;border-radius:4px;border:1px solid rgba(15,118,110,0.35);margin-left:0.3rem;">v2.5</span>
-            </div>
+            <span style="font-family:'Inter',sans-serif;font-weight:700;font-size:1.15rem;color:#E8EEF5;letter-spacing:-0.02em;">SHADOWCOST</span>
         </div>
         """,
         unsafe_allow_html=True
@@ -136,20 +133,14 @@ with nav_col2:
                 st.rerun()
 
 with nav_col3:
-    col_demo, col_status = st.columns([1.3, 1.1])
-    with col_demo:
-        if st.button("QUICK DEMO", key="nav_quick_demo_btn", type="primary", use_container_width=True):
-            trigger_quick_demo_mode()
-            st.rerun()
-    with col_status:
-        st.markdown(
-            """
-            <div style="display:flex;align-items:center;padding-top:0.35rem;">
-                <span class="nav-status"><span class="pulse-ring"></span> STATUS: ACTIVE</span>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+    st.markdown(
+        """
+        <div style="display:flex;align-items:center;justify-content:flex-end;padding-top:0.35rem;">
+            <span class="nav-status"><span class="pulse-ring"></span> SYSTEM ACTIVE</span>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 st.markdown("<div style='height:0.3rem;'></div>", unsafe_allow_html=True)
 
@@ -167,7 +158,12 @@ def set_scenario_substep(substep_idx: int):
 
 # TAB 0: OVERVIEW (Landing Command Workspace)
 if active_idx == 0:
-    render_landing_stage(on_start_callback=lambda idx: set_scenario_substep(0))
+    def handle_landing_navigation(target_idx):
+        if target_idx == 4:
+            navigate_to_tab(4)
+        else:
+            set_scenario_substep(0)
+    render_landing_stage(on_start_callback=handle_landing_navigation)
 
 # TAB 1: SPATIAL ANALYSIS (Step-by-Step Drawer Flow)
 elif active_idx == 1:
@@ -192,7 +188,7 @@ elif active_idx == 2:
 # TAB 3: SCENARIO LAB (A/B Compare View)
 elif active_idx == 3:
     render_comparison_stage(
-        on_next_callback=lambda s: navigate_to_tab(4),
+        on_next_callback=lambda s: set_scenario_substep(0),
         on_export_callback=lambda s: navigate_to_tab(5)
     )
 

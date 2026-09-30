@@ -174,7 +174,7 @@ def draw_plotly_radar_chart(impacts: dict) -> go.Figure:
                 color="#9AA4B2",
                 gridcolor="rgba(154, 164, 178, 0.18)",
                 linecolor="rgba(154, 164, 178, 0.25)",
-                tickfont=dict(size=10, color="#9AA4B2", family="Space Grotesk, sans-serif")
+                tickfont=dict(size=10, color="#9AA4B2", family="Inter, sans-serif")
             ),
             bgcolor="rgba(0,0,0,0)",
         ),
@@ -189,19 +189,19 @@ def draw_plotly_radar_chart(impacts: dict) -> go.Figure:
 
 def draw_radial_arc_gauge(score: int, risk_level: str) -> str:
     """Generates clean SVG radial arc meter card HTML. Restrained dark surface."""
-    color = "#14B8A6" if score < 30 else ("#FFA500" if score < 60 else "#FF4757")
+    color = "#14B8A6" if score < 30 else ("#5EEAD4" if score < 60 else "#8B97A6")
     stroke_dashoffset = 157.08 * (1.0 - (min(100, max(0, score)) / 100.0))
     gauge_html = (
-        f'<div style="background:#121826;border:1px solid rgba(255,255,255,0.07);border-radius:10px;height:210px;padding:12px;text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;">'
-        f'<div style="font-family:\'Space Grotesk\',sans-serif;font-size:0.68rem;font-weight:700;color:#9AA4B2;letter-spacing:0.05em;margin-bottom:4px;">EXECUTIVE IMPACT GAUGE</div>'
+        f'<div style="background:#0D131C;border:1px solid rgba(139,151,166,0.12);border-radius:6px;height:210px;padding:12px;text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;">'
+        f'<div style="font-family:\'Inter\',sans-serif;font-size:0.65rem;font-weight:700;color:#8B97A6;letter-spacing:0.06em;margin-bottom:4px;">SHADOW IMPACT INDEX</div>'
         f'<div style="position:relative;width:170px;height:95px;margin:0 auto;">'
         f'<svg width="170" height="95" viewBox="0 0 120 70">'
-        f'<path d="M 10 60 A 50 50 0 0 1 110 60" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="12" stroke-linecap="round"/>'
+        f'<path d="M 10 60 A 50 50 0 0 1 110 60" fill="none" stroke="rgba(139,151,166,0.12)" stroke-width="12" stroke-linecap="round"/>'
         f'<path d="M 10 60 A 50 50 0 0 1 110 60" fill="none" stroke="{color}" stroke-width="12" stroke-linecap="round" stroke-dasharray="157.08" stroke-dashoffset="{stroke_dashoffset}"/>'
         f'</svg>'
         f'<div style="position:absolute;bottom:4px;left:0;right:0;text-align:center;">'
-        f'<div style="font-family:\'JetBrains Mono\',monospace;font-size:1.6rem;font-weight:800;color:#E6EDF3;line-height:1;">{score}<span style="font-size:0.85rem;color:#9AA4B2;">/100</span></div>'
-        f'<div style="font-family:\'Space Grotesk\',sans-serif;font-size:0.68rem;font-weight:700;color:{color};margin-top:2px;">{risk_level.upper()} RISK INDEX</div>'
+        f'<div style="font-family:\'JetBrains Mono\',monospace;font-size:1.65rem;font-weight:700;color:#E8EEF5;line-height:1;">{score}<span style="font-size:0.85rem;color:#8B97A6;"> / 100</span></div>'
+        f'<div style="font-family:\'Inter\',sans-serif;font-size:0.65rem;font-weight:700;color:{color};margin-top:2px;letter-spacing:0.04em;">{risk_level.upper()} RISK INDEX</div>'
         f'</div>'
         f'</div>'
         f'</div>'
@@ -278,18 +278,18 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
     with h_left:
         st.markdown(
             f"""
-            <div style="margin-bottom:0.85rem;">
-                <div style="font-family:'Space Grotesk',sans-serif;font-size:12px;color:#14B8A6;font-weight:700;letter-spacing:0.08em;display:flex;align-items:center;gap:0.4rem;">
-                    {SVG_ICONS['radar']} SPATIAL IMPACT COMMAND CENTER
+            <div style="margin-bottom:0.75rem;">
+                <div style="font-family:'Inter',sans-serif;font-size:11px;color:#14B8A6;font-weight:700;letter-spacing:0.08em;display:flex;align-items:center;gap:0.4rem;">
+                    {SVG_ICONS['radar']} SHADOWCOST &bull; SPATIAL IMPACT COMMAND CENTER
                 </div>
-                <h1 style="font-family:'Space Grotesk',sans-serif;font-size:34px;font-weight:600;color:#E6EDF3;letter-spacing:-0.02em;margin-top:0.1rem;margin-bottom:0.25rem;">
-                    Command Center Intelligence
+                <h1 style="font-family:'Inter',sans-serif;font-size:30px;font-weight:600;color:#E8EEF5;letter-spacing:-0.02em;margin-top:0.1rem;margin-bottom:0.25rem;">
+                    Spatial Impact Command Center
                 </h1>
-                <div style="font-size:13.5px;color:#9AA4B2;display:flex;align-items:center;gap:0.75rem;">
-                    <span>LOCATION: <b style="color:#E6EDF3;">{display_name[:45]}</b></span>
-                    <span>•</span>
+                <div style="font-size:12.5px;color:#8B97A6;display:flex;align-items:center;gap:0.75rem;">
+                    <span>LOCATION: <b style="color:#E8EEF5;">{display_name[:45]}</b></span>
+                    <span>&bull;</span>
                     <span style="color:#5EEAD4;">{impacts["intervention_name"]} ({impacts["dimension_val"]})</span>
-                    <span>•</span>
+                    <span>&bull;</span>
                     <span class="badge badge-emerald">FORECAST: {timeline_year}</span>
                 </div>
             </div>
@@ -310,99 +310,162 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
                     on_export_callback(5)
                 st.rerun()
 
-    # TOP ANALYTICS ROW: Executive Impact Gauge (LEFT) + 4 Primary Metrics (RIGHT)
-    col_gauge, col_metrics = st.columns([1.1, 3.7], gap="medium")
+    # =========================================================
+    # HERO SPATIAL VIEW (Dominates ~60-70% of Page Focus)
+    # =========================================================
+    st.markdown(
+        """
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+            <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:0.9rem;color:#E8EEF5;letter-spacing:0.04em;display:flex;align-items:center;gap:0.4rem;">
+                SPATIAL VIEW &bull; URBAN NETWORK &amp; INTERVENTION ALIGNMENT
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-    with col_gauge:
-        st.markdown(draw_radial_arc_gauge(idx_score, risk_lbl), unsafe_allow_html=True)
+    # MAP LAYER VECTOR TOGGLES
+    l_c1, l_c2, l_c3, l_c4 = st.columns(4)
+    with l_c1:
+        show_res = st.checkbox("Residential (Cyan)", value=bool(st.session_state.get("map_show_res", True)), key="dash_toggle_res")
+        if show_res != st.session_state.get("map_show_res", True):
+            st.session_state["map_show_res"] = show_res
+            st.rerun()
+    with l_c2:
+        show_comm = st.checkbox("Commercial (Amber)", value=bool(st.session_state.get("map_show_comm", True)), key="dash_toggle_comm")
+        if show_comm != st.session_state.get("map_show_comm", True):
+            st.session_state["map_show_comm"] = show_comm
+            st.rerun()
+    with l_c3:
+        show_canopy = st.checkbox("Canopy (Emerald)", value=bool(st.session_state.get("map_show_canopy", True)), key="dash_toggle_canopy")
+        if show_canopy != st.session_state.get("map_show_canopy", True):
+            st.session_state["map_show_canopy"] = show_canopy
+            st.rerun()
+    with l_c4:
+        show_detour = st.checkbox("Detour Vector", value=bool(st.session_state.get("map_show_detour", True)), key="dash_toggle_detour")
+        if show_detour != st.session_state.get("map_show_detour", True):
+            st.session_state["map_show_detour"] = show_detour
+            st.rerun()
 
-    with col_metrics:
-        m1, m2 = st.columns(2)
-        m3, m4 = st.columns(2)
+    # Standard Keyless OSM Map Layer
+    m = folium.Map(
+        location=[center_lat, center_lon],
+        zoom_start=15,
+        tiles="https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        control_scale=True
+    )
 
-        with m1:
-            st.markdown(
-                f"""
-                <div style="padding:0.2rem 0.4rem;margin-bottom:0.5rem;">
-                    <div style="font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:500;color:#9AA4B2;letter-spacing:0.04em;">PEOPLE AFFECTED</div>
-                    <div style="font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:600;color:#E6EDF3;line-height:1.1;margin-top:2px;">{impacts["people_affected_str"]}</div>
-                    <div style="font-size:12px;color:#6B7280;margin-top:2px;">↑ {impacts["people_margin"]}</div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-        with m2:
-            st.markdown(
-                f"""
-                <div style="padding:0.2rem 0.4rem;margin-bottom:0.5rem;">
-                    <div style="font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:500;color:#9AA4B2;letter-spacing:0.04em;">ADDITIONAL TRAVEL</div>
-                    <div style="font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:600;color:#E6EDF3;line-height:1.1;margin-top:2px;">{impacts["additional_travel_str"]}</div>
-                    <div style="font-size:12px;color:#6B7280;margin-top:2px;">↑ {impacts["travel_subtext"]}</div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-        with m3:
-            st.markdown(
-                f"""
-                <div style="padding:0.2rem 0.4rem;">
-                    <div style="font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:500;color:#9AA4B2;letter-spacing:0.04em;">GREEN CANOPY AFFECTED</div>
-                    <div style="font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:600;color:#E6EDF3;line-height:1.1;margin-top:2px;">{impacts["green_area_str"]}</div>
-                    <div style="font-size:12px;color:#6B7280;margin-top:2px;">↑ {impacts["green_cover_change_str"]}</div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-        with m4:
-            st.markdown(
-                f"""
-                <div style="padding:0.2rem 0.4rem;">
-                    <div style="font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:500;color:#9AA4B2;letter-spacing:0.04em;">AFFECTED ASSETS</div>
-                    <div style="font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:600;color:#E6EDF3;line-height:1.1;margin-top:2px;">{impacts["affected_assets_str"]}</div>
-                    <div style="font-size:12px;color:#6B7280;margin-top:2px;">↑ {impacts["affected_assets_subtext"]}</div>
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+    # Inject animated vector style directly into map header
+    m.get_root().header.add_child(
+        folium.Element("""
+        <style>
+            @keyframes dash {
+                to { stroke-dashoffset: -30; }
+            }
+            .animated-vector-path {
+                animation: dash 1.5s linear infinite !important;
+            }
+        </style>
+        """)
+    )
 
-    # COMPACT IMPACT SIGNALS SECTION (Replacing radar visualization)
-    soc_bar = max(4, min(100, impacts.get("social_score", 10)))
-    mob_bar = max(4, min(100, impacts.get("mobility_score", 10)))
-    env_bar = max(4, min(100, impacts.get("env_score", 10)))
-    inf_bar = max(4, min(100, impacts.get("infra_score", 10)))
+    # Apply CSS Filter & Animated Vector Corridor Laser Strokes directly to map tiles
+    folium.Element(DARK_TILE_CSS).add_to(m.get_root().header)
+
+    if show_detour:
+        folium.Circle(
+            location=[center_lat, center_lon], radius=radius_km * 1000,
+            color="#10B981", weight=2, dash_array="10, 20", className="animated-vector-path", fill=False
+        ).add_to(m)
+
+    def style_feature(feature):
+        cat = feature["properties"].get("category")
+        edge, fill = CATEGORY_COLORS.get(cat, CATEGORY_COLORS["other"])
+        return {"fillColor": edge, "color": edge, "weight": 1.0, "fillOpacity": 0.35}
+
+    # Filter demographic features based on dynamic layer toggles
+    active_cats = []
+    if show_res: active_cats.append("residential")
+    if show_comm: active_cats.append("commercial")
+    if show_canopy: active_cats.append("park")
+
+    filtered_gdf = demographic_gdf[demographic_gdf.category.isin(active_cats)] if active_cats else demographic_gdf.iloc[0:0]
+
+    if not filtered_gdf.empty:
+        folium.GeoJson(
+            filtered_gdf[["osmid", "name", "category", "area_m2_str", "exposure_idx", "geometry"]],
+            style_function=style_feature,
+            tooltip=folium.GeoJsonTooltip(
+                fields=["name", "category", "exposure_idx", "area_m2_str"],
+                aliases=["Asset:", "Category:", "Exposure Index:", "Footprint Area:"]
+            )
+        ).add_to(m)
+
+    is_road = impacts["is_road"]
+    is_structure = impacts["is_structure"]
+
+    if show_detour:
+        if is_road and drawn_geom is not None:
+            coords = [(p[1], p[0]) for p in drawn_geom.coords]
+            folium.PolyLine(
+                locations=coords,
+                color="#10B981",
+                weight=6,
+                opacity=0.95,
+                dash_array="10, 20",
+                className="animated-vector-path",
+                tooltip="Proposed Alignment (Live Animated Vector)"
+            ).add_to(m)
+            folium.CircleMarker(coords[0], radius=7, color="#10B981", fill=True, fill_color="#10B981").add_to(m)
+            folium.CircleMarker(coords[-1], radius=7, color="#FF4757", fill=True, fill_color="#FF4757").add_to(m)
+        elif is_structure and drawn_geom is not None:
+            folium.GeoJson(
+                drawn_geom.__geo_interface__,
+                style_function=lambda x: {"fillColor": "#00D2FF", "color": "#10B981", "weight": 3, "fillOpacity": 0.45},
+                tooltip="Proposed Footprint"
+            ).add_to(m)
+
+    # HERO SPATIAL VIEW FOLIUM CANVAS (560px dominant height)
+    st_folium(m, key="impact_command_map", width=None, height=560, returned_objects=[])
+
+    # =========================================================
+    # INTEGRATED HUD EDITORIAL METRICS STRIP (Directly below Hero Map)
+    # =========================================================
+    gauge_color = "#14B8A6" if idx_score < 30 else ("#5EEAD4" if idx_score < 60 else "#8B97A6")
 
     st.markdown(
         f"""
-        <div style="margin-top:0.4rem;margin-bottom:0.75rem;padding:0.6rem 0.8rem;background:#121826;border:1px solid rgba(255,255,255,0.06);border-radius:6px;">
-            <div style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;color:#9AA4B2;letter-spacing:0.06em;margin-bottom:0.4rem;">IMPACT SIGNALS</div>
-            <div style="display:flex;flex-direction:column;gap:0.35rem;">
-                <div style="display:flex;align-items:center;gap:0.6rem;font-size:11.5px;font-family:'Space Grotesk',sans-serif;">
-                    <span style="width:130px;color:#E6EDF3;font-weight:500;">SOCIAL EXPOSURE</span>
-                    <div style="flex:1;background:rgba(255,255,255,0.06);height:4px;border-radius:2px;overflow:hidden;">
-                        <div style="background:#14B8A6;width:{soc_bar}%;height:100%;"></div>
+        <div style="margin-top:0.65rem;margin-bottom:0.75rem;padding:0.75rem 1rem;background:#0D131C;border:1px solid rgba(139,151,166,0.12);border-radius:6px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">
+            <div style="display:flex;align-items:center;gap:1.25rem;border-right:1px solid rgba(139,151,166,0.15);padding-right:1.25rem;">
+                <div>
+                    <div style="font-family:'Inter',sans-serif;font-size:0.65rem;font-weight:700;color:#8B97A6;letter-spacing:0.06em;">SHADOW IMPACT INDEX</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:1.6rem;font-weight:700;color:#E8EEF5;line-height:1;margin-top:2px;">
+                        {idx_score}<span style="font-size:0.85rem;color:#8B97A6;"> / 100</span>
                     </div>
-                    <span style="width:30px;text-align:right;font-family:'JetBrains Mono',monospace;color:#9AA4B2;">{impacts.get("social_score", 10)}</span>
+                    <div style="font-family:'Inter',sans-serif;font-size:0.62rem;font-weight:700;color:{gauge_color};margin-top:2px;letter-spacing:0.04em;">{risk_lbl.upper()} RISK</div>
                 </div>
-                <div style="display:flex;align-items:center;gap:0.6rem;font-size:11.5px;font-family:'Space Grotesk',sans-serif;">
-                    <span style="width:130px;color:#E6EDF3;font-weight:500;">MOBILITY SHIFT</span>
-                    <div style="flex:1;background:rgba(255,255,255,0.06);height:4px;border-radius:2px;overflow:hidden;">
-                        <div style="background:#14B8A6;width:{mob_bar}%;height:100%;"></div>
-                    </div>
-                    <span style="width:30px;text-align:right;font-family:'JetBrains Mono',monospace;color:#9AA4B2;">{impacts.get("mobility_score", 10)}</span>
+            </div>
+            <div style="flex:1;display:grid;grid-template-columns:repeat(4, 1fr);gap:0.75rem;align-items:center;">
+                <div>
+                    <div style="font-family:'Inter',sans-serif;font-size:0.68rem;font-weight:600;color:#8B97A6;letter-spacing:0.04em;">PEOPLE AFFECTED</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700;color:#E8EEF5;margin-top:2px;">{impacts["people_affected_str"]}</div>
+                    <div style="font-size:0.62rem;color:#4A5568;">↑ {impacts["people_margin"]}</div>
                 </div>
-                <div style="display:flex;align-items:center;gap:0.6rem;font-size:11.5px;font-family:'Space Grotesk',sans-serif;">
-                    <span style="width:130px;color:#E6EDF3;font-weight:500;">ENVIRONMENT</span>
-                    <div style="flex:1;background:rgba(255,255,255,0.06);height:4px;border-radius:2px;overflow:hidden;">
-                        <div style="background:#14B8A6;width:{env_bar}%;height:100%;"></div>
-                    </div>
-                    <span style="width:30px;text-align:right;font-family:'JetBrains Mono',monospace;color:#9AA4B2;">{impacts.get("env_score", 10)}</span>
+                <div>
+                    <div style="font-family:'Inter',sans-serif;font-size:0.68rem;font-weight:600;color:#8B97A6;letter-spacing:0.04em;">TRAVEL DELAY</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700;color:#E8EEF5;margin-top:2px;">{impacts["additional_travel_str"]}</div>
+                    <div style="font-size:0.62rem;color:#4A5568;">↑ {impacts["travel_subtext"]}</div>
                 </div>
-                <div style="display:flex;align-items:center;gap:0.6rem;font-size:11.5px;font-family:'Space Grotesk',sans-serif;">
-                    <span style="width:130px;color:#E6EDF3;font-weight:500;">INFRASTRUCTURE</span>
-                    <div style="flex:1;background:rgba(255,255,255,0.06);height:4px;border-radius:2px;overflow:hidden;">
-                        <div style="background:#14B8A6;width:{inf_bar}%;height:100%;"></div>
-                    </div>
-                    <span style="width:30px;text-align:right;font-family:'JetBrains Mono',monospace;color:#9AA4B2;">{impacts.get("infra_score", 10)}</span>
+                <div>
+                    <div style="font-family:'Inter',sans-serif;font-size:0.68rem;font-weight:600;color:#8B97A6;letter-spacing:0.04em;">GREEN CANOPY</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700;color:#E8EEF5;margin-top:2px;">{impacts["green_area_str"]}</div>
+                    <div style="font-size:0.62rem;color:#4A5568;">↑ {impacts["green_cover_change_str"]}</div>
+                </div>
+                <div>
+                    <div style="font-family:'Inter',sans-serif;font-size:0.68rem;font-weight:600;color:#8B97A6;letter-spacing:0.04em;">AFFECTED ASSETS</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:1.25rem;font-weight:700;color:#E8EEF5;margin-top:2px;">{impacts["affected_assets_str"]}</div>
+                    <div style="font-size:0.62rem;color:#4A5568;">↑ {impacts["affected_assets_subtext"]}</div>
                 </div>
             </div>
         </div>
@@ -410,7 +473,52 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
         unsafe_allow_html=True
     )
 
-    st.markdown("<div style='height:0.6rem;'></div>", unsafe_allow_html=True)
+    # COMPACT IMPACT SIGNALS SECTION
+    soc_bar = max(4, min(100, impacts.get("social_score", 10)))
+    mob_bar = max(4, min(100, impacts.get("mobility_score", 10)))
+    env_bar = max(4, min(100, impacts.get("env_score", 10)))
+    inf_bar = max(4, min(100, impacts.get("infra_score", 10)))
+
+    st.markdown(
+        f"""
+        <div style="margin-bottom:0.75rem;padding:0.65rem 0.85rem;background:#0D131C;border:1px solid rgba(139,151,166,0.12);border-radius:6px;">
+            <div style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:#8B97A6;letter-spacing:0.06em;margin-bottom:0.4rem;">IMPACT SIGNALS</div>
+            <div style="display:flex;flex-direction:column;gap:0.35rem;">
+                <div style="display:flex;align-items:center;gap:0.6rem;font-size:11.5px;font-family:'Inter',sans-serif;">
+                    <span style="width:130px;color:#E8EEF5;font-weight:500;">SOCIAL EXPOSURE</span>
+                    <div style="flex:1;background:rgba(255,255,255,0.04);height:4px;border-radius:2px;overflow:hidden;">
+                        <div style="background:#14B8A6;width:{soc_bar}%;height:100%;"></div>
+                    </div>
+                    <span style="width:30px;text-align:right;font-family:'JetBrains Mono',monospace;color:#8B97A6;">{impacts.get("social_score", 10)}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:0.6rem;font-size:11.5px;font-family:'Inter',sans-serif;">
+                    <span style="width:130px;color:#E8EEF5;font-weight:500;">MOBILITY SHIFT</span>
+                    <div style="flex:1;background:rgba(255,255,255,0.04);height:4px;border-radius:2px;overflow:hidden;">
+                        <div style="background:#14B8A6;width:{mob_bar}%;height:100%;"></div>
+                    </div>
+                    <span style="width:30px;text-align:right;font-family:'JetBrains Mono',monospace;color:#8B97A6;">{impacts.get("mobility_score", 10)}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:0.6rem;font-size:11.5px;font-family:'Inter',sans-serif;">
+                    <span style="width:130px;color:#E8EEF5;font-weight:500;">ENVIRONMENT</span>
+                    <div style="flex:1;background:rgba(255,255,255,0.04);height:4px;border-radius:2px;overflow:hidden;">
+                        <div style="background:#14B8A6;width:{env_bar}%;height:100%;"></div>
+                    </div>
+                    <span style="width:30px;text-align:right;font-family:'JetBrains Mono',monospace;color:#8B97A6;">{impacts.get("env_score", 10)}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:0.6rem;font-size:11.5px;font-family:'Inter',sans-serif;">
+                    <span style="width:130px;color:#E8EEF5;font-weight:500;">INFRASTRUCTURE</span>
+                    <div style="flex:1;background:rgba(255,255,255,0.04);height:4px;border-radius:2px;overflow:hidden;">
+                        <div style="background:#14B8A6;width:{inf_bar}%;height:100%;"></div>
+                    </div>
+                    <span style="width:30px;text-align:right;font-family:'JetBrains Mono',monospace;color:#8B97A6;">{impacts.get("infra_score", 10)}</span>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+    st.markdown("<div style='height:0.5rem;'></div>", unsafe_allow_html=True)
 
     # WHAT CHANGED HUD STRIP
     scenarios = get_scenarios()
@@ -427,11 +535,11 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
 
         st.markdown(
             f"""
-            <div class="glass-panel" style="padding:0.75rem 1rem;display:flex;align-items:center;gap:1.5rem;margin-bottom:0.75rem;">
-                <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.78rem;color:#14B8A6;">WHAT CHANGED (Slot B vs Slot A):</span>
-                <span class="mono" style="font-size:0.82rem;color:#FFFFFF;">Resident Delta: {pop_d_str}</span>
-                <span class="mono" style="font-size:0.82rem;color:#00D2FF;">Travel Delta: {travel_d_str}</span>
-                <span class="mono" style="font-size:0.82rem;color:#14B8A6;">Canopy Delta: {green_d_str}</span>
+            <div style="padding:0.65rem 0.9rem;background:#0D131C;border:1px solid rgba(139,151,166,0.12);border-radius:6px;display:flex;align-items:center;gap:1.5rem;margin-bottom:0.75rem;">
+                <span style="font-family:'Inter',sans-serif;font-weight:700;font-size:0.75rem;color:#14B8A6;">WHAT CHANGED (Slot B vs Slot A):</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:#E8EEF5;">Resident Delta: {pop_d_str}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:#5EEAD4;">Travel Delta: {travel_d_str}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:#14B8A6;">Canopy Delta: {green_d_str}</span>
             </div>
             """,
             unsafe_allow_html=True
@@ -439,138 +547,26 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
     else:
         st.markdown(
             """
-            <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#9CA3AF;margin-bottom:0.6rem;padding:0.4rem 0.75rem;background:rgba(255,255,255,0.02);border:1px solid rgba(107,114,128,0.2);border-radius:6px;">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#8B97A6;margin-bottom:0.6rem;padding:0.4rem 0.75rem;background:#0D131C;border:1px solid rgba(139,151,166,0.12);border-radius:6px;">
                 SCENARIO DELTA TRACKING: Save intervention into Slot A & Slot B to render live baseline comparison matrix.
             </div>
             """,
             unsafe_allow_html=True
         )
 
-    # TWO COLUMN MAIN HERO WORKSPACE: OpenStreetMap Dark Vector Map (~60%) + AI Synthesis & Evidence Explorer (~40%)
-    r_map, r_info = st.columns([1.4, 1], gap="medium")
+    # =========================================================
+    # SECONDARY WORKSPACE: CONTROLS & TIMELINE (LEFT) vs BRIEFING & EVIDENCE (RIGHT)
+    # =========================================================
+    r_controls, r_brief = st.columns([1.1, 1], gap="medium")
 
-    with r_map:
-        # FEATURE 3: DYNAMIC MAP VECTOR LAYER TOGGLES
-        st.markdown(
-            """
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.88rem;color:#FFFFFF;">OpenStreetMap Dark Vector Workspace</div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        l_c1, l_c2, l_c3, l_c4 = st.columns(4)
-        with l_c1:
-            show_res = st.checkbox("Residential (Cyan)", value=bool(st.session_state.get("map_show_res", True)), key="dash_toggle_res")
-            if show_res != st.session_state.get("map_show_res", True):
-                st.session_state["map_show_res"] = show_res
-                st.rerun()
-        with l_c2:
-            show_comm = st.checkbox("Commercial (Amber)", value=bool(st.session_state.get("map_show_comm", True)), key="dash_toggle_comm")
-            if show_comm != st.session_state.get("map_show_comm", True):
-                st.session_state["map_show_comm"] = show_comm
-                st.rerun()
-        with l_c3:
-            show_canopy = st.checkbox("Canopy (Emerald)", value=bool(st.session_state.get("map_show_canopy", True)), key="dash_toggle_canopy")
-            if show_canopy != st.session_state.get("map_show_canopy", True):
-                st.session_state["map_show_canopy"] = show_canopy
-                st.rerun()
-        with l_c4:
-            show_detour = st.checkbox("Detour Vector", value=bool(st.session_state.get("map_show_detour", True)), key="dash_toggle_detour")
-            if show_detour != st.session_state.get("map_show_detour", True):
-                st.session_state["map_show_detour"] = show_detour
-                st.rerun()
-
-        # Standard Keyless OSM Map Layer
-        m = folium.Map(
-            location=[center_lat, center_lon],
-            zoom_start=15,
-            tiles="https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-            attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            control_scale=True
-        )
-
-        # Inject animated vector style directly into map header
-        m.get_root().header.add_child(
-            folium.Element("""
-            <style>
-                @keyframes dash {
-                    to { stroke-dashoffset: -30; }
-                }
-                .animated-vector-path {
-                    animation: dash 1.5s linear infinite !important;
-                }
-            </style>
-            """)
-        )
-
-        # Apply CSS Filter & Animated Vector Corridor Laser Strokes directly to map tiles
-        folium.Element(DARK_TILE_CSS).add_to(m.get_root().header)
-
-        if show_detour:
-            folium.Circle(
-                location=[center_lat, center_lon], radius=radius_km * 1000,
-                color="#10B981", weight=2, dash_array="10, 20", className="animated-vector-path", fill=False
-            ).add_to(m)
-
-        def style_feature(feature):
-            cat = feature["properties"].get("category")
-            edge, fill = CATEGORY_COLORS.get(cat, CATEGORY_COLORS["other"])
-            return {"fillColor": edge, "color": edge, "weight": 1.0, "fillOpacity": 0.35}
-
-        # Filter demographic features based on dynamic layer toggles
-        active_cats = []
-        if show_res: active_cats.append("residential")
-        if show_comm: active_cats.append("commercial")
-        if show_canopy: active_cats.append("park")
-
-        filtered_gdf = demographic_gdf[demographic_gdf.category.isin(active_cats)] if active_cats else demographic_gdf.iloc[0:0]
-
-        if not filtered_gdf.empty:
-            folium.GeoJson(
-                filtered_gdf[["osmid", "name", "category", "area_m2_str", "exposure_idx", "geometry"]],
-                style_function=style_feature,
-                tooltip=folium.GeoJsonTooltip(
-                    fields=["name", "category", "exposure_idx", "area_m2_str"],
-                    aliases=["Asset:", "Category:", "Exposure Index:", "Footprint Area:"]
-                )
-            ).add_to(m)
-
-        is_road = impacts["is_road"]
-        is_structure = impacts["is_structure"]
-
-        if show_detour:
-            if is_road and drawn_geom is not None:
-                coords = [(p[1], p[0]) for p in drawn_geom.coords]
-                folium.PolyLine(
-                    locations=coords,
-                    color="#10B981",
-                    weight=6,
-                    opacity=0.95,
-                    dash_array="10, 20",
-                    className="animated-vector-path",
-                    tooltip="Proposed Alignment (Live Animated Vector)"
-                ).add_to(m)
-                folium.CircleMarker(coords[0], radius=7, color="#10B981", fill=True, fill_color="#10B981").add_to(m)
-                folium.CircleMarker(coords[-1], radius=7, color="#FF4757", fill=True, fill_color="#FF4757").add_to(m)
-            elif is_structure and drawn_geom is not None:
-                folium.GeoJson(
-                    drawn_geom.__geo_interface__,
-                    style_function=lambda x: {"fillColor": "#00D2FF", "color": "#10B981", "weight": 3, "fillOpacity": 0.45},
-                    tooltip="Proposed Footprint"
-                ).add_to(m)
-
-        # Explicit height=520 map canvas container fix
-        st_folium(m, key="impact_command_map", width=None, height=520, returned_objects=[])
-
-        # FEATURE 2: 10-YEAR PREDICTIVE TIMELINE SIMULATOR SLIDER
+    with r_controls:
+        # 10-YEAR PREDICTIVE TIMELINE SIMULATOR SLIDER
         st.markdown(
             f"""
-            <div style="margin-top:0.6rem;padding:0.6rem 0.9rem;background:#11161D;border:1px solid rgba(107,114,128,0.2);border-radius:8px;">
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.8rem;color:#F7F7F5;display:flex;justify-content:space-between;align-items:center;">
+            <div style="padding:0.6rem 0.9rem;background:#0D131C;border:1px solid rgba(139,151,166,0.12);border-radius:6px;margin-bottom:0.5rem;">
+                <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:0.8rem;color:#E8EEF5;display:flex;justify-content:space-between;align-items:center;">
                     <span>10-YEAR PREDICTIVE TIMELINE SIMULATOR</span>
-                    <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#14B8A6;background:rgba(15,118,110,0.15);padding:0.15rem 0.5rem;border-radius:3px;">
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#14B8A6;background:rgba(20,184,166,0.12);padding:0.15rem 0.5rem;border-radius:3px;">
                         FORECAST: {timeline_year}
                     </span>
                 </div>
@@ -597,14 +593,14 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
         }
         st.caption(f"Phase Characteristics: {year_descs[timeline_year]}")
 
-    with r_info:
+    with r_controls:
         # WHAT-IF SCENARIO SIMULATOR WORKSPACE PANEL
         with st.expander("WHAT-IF SCENARIO SIMULATOR", expanded=True):
             # 1. HEADER
             st.markdown(
                 f"""
                 <div style="margin-bottom:0.6rem;">
-                    <div style="font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:600;color:#E6EDF3;">
+                    <div style="font-family:'Inter',sans-serif;font-size:1.05rem;font-weight:600;color:#E6EDF3;">
                         <span style="color:#14B8A6;">WHAT-IF</span> Scenario Simulator
                     </div>
                     <div style="font-size:12.5px;color:#9AA4B2;margin-top:2px;">
@@ -616,7 +612,7 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
             )
 
             # 2. PLANNING CONTROLS CONSOLE
-            st.markdown("<div style='font-family:\"Space Grotesk\",sans-serif;font-size:11px;font-weight:600;color:#6B7280;letter-spacing:0.06em;margin-bottom:0.25rem;'>PLANNING CONTROLS</div>", unsafe_allow_html=True)
+            st.markdown("<div style='font-family:\"Inter\",sans-serif;font-size:11px;font-weight:600;color:#6B7280;letter-spacing:0.06em;margin-bottom:0.25rem;'>PLANNING CONTROLS</div>", unsafe_allow_html=True)
 
             c_col1, c_col2 = st.columns(2)
             with c_col1:
@@ -672,7 +668,7 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
                 st.markdown("<div style='height:0.5rem;'></div>", unsafe_allow_html=True)
                 st.markdown(
                     """
-                    <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:11.5px;color:#14B8A6;letter-spacing:0.04em;margin-bottom:0.4rem;">
+                    <div style="font-family:'Inter',sans-serif;font-weight:600;font-size:11.5px;color:#14B8A6;letter-spacing:0.04em;margin-bottom:0.4rem;">
                         FIND A LOWER-IMPACT PLAN
                     </div>
                     """,
@@ -683,7 +679,7 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
                     st.markdown(
                         """
                         <div style="padding:0.6rem 0.8rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:6px;margin-bottom:0.6rem;">
-                            <div style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;color:#9AA4B2;">
+                            <div style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:#9AA4B2;">
                                 NO LOWER-MODELED-IMPACT VARIANT FOUND
                             </div>
                             <div style="font-size:11.5px;color:#6B7280;margin-top:2px;">
@@ -707,7 +703,7 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
                             <div style="padding:0.55rem 0.75rem;background:#151A21;border:1px solid rgba(20, 184, 166, 0.25);border-radius:6px;margin-bottom:0.45rem;">
                                 <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.25rem;">
                                     <div>
-                                        <div style="font-family:'Space Grotesk',sans-serif;font-size:10.5px;font-weight:700;color:#14B8A6;letter-spacing:0.04em;">{alt_label.upper()}</div>
+                                        <div style="font-family:'Inter',sans-serif;font-size:10.5px;font-weight:700;color:#14B8A6;letter-spacing:0.04em;">{alt_label.upper()}</div>
                                         <div style="font-size:12px;font-weight:600;color:#E6EDF3;margin-top:1px;">{alt_desc}</div>
                                     </div>
                                     <div style="text-align:right;">
@@ -756,12 +752,12 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
                 f"""
                 <div style="padding:0.4rem 0;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:0.6rem;display:flex;align-items:center;justify-content:space-between;">
                     <div>
-                        <div style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;color:#9AA4B2;letter-spacing:0.04em;">EXECUTIVE IMPACT INDEX</div>
+                        <div style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;color:#9AA4B2;letter-spacing:0.04em;">EXECUTIVE IMPACT INDEX</div>
                         <div style="display:flex;align-items:baseline;gap:0.5rem;margin-top:2px;">
                             <span style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;color:#9AA4B2;">{base_idx}</span>
                             <span style="font-size:14px;color:#6B7280;">→</span>
                             <span style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;color:#E6EDF3;">{whatif_idx}</span>
-                            <span style="font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;color:#6B7280;margin-left:2px;">WHAT-IF</span>
+                            <span style="font-family:'Inter',sans-serif;font-size:10px;font-weight:500;color:#6B7280;margin-left:2px;">WHAT-IF</span>
                         </div>
                     </div>
                     <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:{diff_color};background:rgba(255,255,255,0.03);padding:0.2rem 0.55rem;border-radius:4px;border:1px solid {diff_color}30;white-space:nowrap;">
@@ -803,7 +799,7 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
 
                 lens_rows_html += f"""
                 <div style="margin-bottom:0.5rem;">
-                    <div style="display:flex;justify-content:space-between;font-size:11.5px;font-family:'Space Grotesk',sans-serif;margin-bottom:0.2rem;">
+                    <div style="display:flex;justify-content:space-between;font-size:11.5px;font-family:'Inter',sans-serif;margin-bottom:0.2rem;">
                         <span style="color:#E6EDF3;font-weight:600;letter-spacing:0.02em;">{name}</span>
                         <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:{badge_c};font-weight:700;">{badge_val}</span>
                     </div>
@@ -832,7 +828,7 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
             st.markdown(
                 f"""
                 <div style="margin-top:0.4rem;padding:0.4rem 0.65rem;background:rgba(20, 184, 166, 0.06);border-left:2.5px solid #14B8A6;border-radius:0 4px 4px 0;">
-                    <div style="font-family:'Space Grotesk',sans-serif;font-size:10.5px;font-weight:700;color:#14B8A6;letter-spacing:0.04em;">PRIMARY IMPACT DRIVER</div>
+                    <div style="font-family:'Inter',sans-serif;font-size:10.5px;font-weight:700;color:#14B8A6;letter-spacing:0.04em;">PRIMARY IMPACT DRIVER</div>
                     <div style="font-size:12px;color:#E6EDF3;margin-top:2px;line-height:1.4;">
                         "{explanation_text}"
                     </div>
@@ -841,6 +837,7 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
                 unsafe_allow_html=True
             )
 
+    with r_brief:
         # AI MITIGATION SYNTHESIS CARD WITH 3 DISTINCT COLOR BADGES
         ai_memo = call_ai_synthesis(
             current_city, impacts["intervention_name"], impacts["dimension_val"],
@@ -860,25 +857,25 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
 
         st.markdown(
             f"""
-            <div style="margin-bottom:0.75rem;padding:0.75rem;background:#121826;border:1px solid rgba(255,255,255,0.06);border-radius:6px;">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
-                    <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:0.85rem;color:#14B8A6;display:flex;align-items:center;gap:0.4rem;">
-                        {SVG_ICONS['sparkles']} AI MITIGATION BRIEFING
+            <div style="margin-bottom:0.75rem;padding:0.85rem;background:#0D131C;border:1px solid rgba(139,151,166,0.12);border-radius:6px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem;padding-bottom:0.35rem;border-bottom:1px solid rgba(139,151,166,0.12);">
+                    <div style="font-family:'Inter',sans-serif;font-weight:600;font-size:0.82rem;color:#14B8A6;display:flex;align-items:center;gap:0.4rem;">
+                        {SVG_ICONS['sparkles']} AI MITIGATION BRIEFING &bull; PLANNING DECISION NOTE
                     </div>
                     <span class="badge badge-emerald">POLICY SYNTHESIS</span>
                 </div>
-                <div style="font-size:13px;color:#E6EDF3;line-height:1.5;margin-bottom:0.6rem;">
+                <div style="font-size:12.5px;color:#E8EEF5;line-height:1.55;margin-bottom:0.65rem;">
                     {ai_memo}
                 </div>
-                <div style="display:flex;flex-direction:column;gap:0.3rem;">
-                    <div style="font-size:12px;color:#9AA4B2;padding:0.3rem 0.5rem;background:rgba(255,255,255,0.02);border-left:2px solid #EF4444;border-radius:0 3px 3px 0;">
-                        <strong style="color:#E6EDF3;">PRIMARY RISK:</strong> {badge_data['primary_risk']}
+                <div style="display:flex;flex-direction:column;gap:0.35rem;">
+                    <div style="font-size:11.5px;color:#8B97A6;padding:0.35rem 0.6rem;background:rgba(255,255,255,0.02);border-left:2.5px solid #14B8A6;border-radius:0 3px 3px 0;">
+                        <strong style="color:#E8EEF5;">PRIMARY RISK:</strong> {badge_data['primary_risk']}
                     </div>
-                    <div style="font-size:12px;color:#9AA4B2;padding:0.3rem 0.5rem;background:rgba(255,255,255,0.02);border-left:2px solid #10B981;border-radius:0 3px 3px 0;">
-                        <strong style="color:#E6EDF3;">CANOPY MITIGATION:</strong> {badge_data['canopy_mitigation']}
+                    <div style="font-size:11.5px;color:#8B97A6;padding:0.35rem 0.6rem;background:rgba(255,255,255,0.02);border-left:2.5px solid #5EEAD4;border-radius:0 3px 3px 0;">
+                        <strong style="color:#E8EEF5;">CANOPY MITIGATION:</strong> {badge_data['canopy_mitigation']}
                     </div>
-                    <div style="font-size:12px;color:#9AA4B2;padding:0.3rem 0.5rem;background:rgba(255,255,255,0.02);border-left:2px solid #00D2FF;border-radius:0 3px 3px 0;">
-                        <strong style="color:#E6EDF3;">RECOMMENDED SHIFT:</strong> {badge_data['recommended_shift']}
+                    <div style="font-size:11.5px;color:#8B97A6;padding:0.35rem 0.6rem;background:rgba(255,255,255,0.02);border-left:2.5px solid #14B8A6;border-radius:0 3px 3px 0;">
+                        <strong style="color:#E8EEF5;">RECOMMENDED SHIFT:</strong> {badge_data['recommended_shift']}
                     </div>
                 </div>
             </div>
@@ -889,30 +886,30 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
         # COMPACT EVIDENCE EXPLORER ROWS
         st.markdown(
             f"""
-            <div style="margin-bottom:0.75rem;padding:0.75rem;background:#121826;border:1px solid rgba(255,255,255,0.06);border-radius:6px;">
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:0.85rem;color:#E6EDF3;margin-bottom:0.4rem;">
-                    EVIDENCE EXPLORER
+            <div style="margin-bottom:0.75rem;padding:0.85rem;background:#0D131C;border:1px solid rgba(139,151,166,0.12);border-radius:6px;">
+                <div style="font-family:'Inter',sans-serif;font-weight:600;font-size:0.82rem;color:#E8EEF5;margin-bottom:0.5rem;padding-bottom:0.3rem;border-bottom:1px solid rgba(139,151,166,0.12);">
+                    EVIDENCE EXPLORER &bull; SPATIAL IMPACT LENSES
                 </div>
-                <div style="display:flex;flex-direction:column;gap:0.3rem;">
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.35rem 0.5rem;background:rgba(255,255,255,0.02);border-radius:4px;font-size:12px;">
-                        <span style="color:#E6EDF3;font-weight:600;">Social</span>
-                        <span class="badge badge-rose">[CRITICAL]</span>
-                        <span style="font-family:'JetBrains Mono',monospace;color:#9AA4B2;">{impacts['people_affected_str']} residents</span>
+                <div style="display:flex;flex-direction:column;gap:0.35rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0.6rem;background:rgba(255,255,255,0.02);border-radius:4px;font-size:11.5px;">
+                        <span style="color:#E8EEF5;font-weight:600;">Social</span>
+                        <span class="badge badge-emerald">[CRITICAL]</span>
+                        <span style="font-family:'JetBrains Mono',monospace;color:#8B97A6;">{impacts['people_affected_str']} residents</span>
                     </div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.35rem 0.5rem;background:rgba(255,255,255,0.02);border-radius:4px;font-size:12px;">
-                        <span style="color:#E6EDF3;font-weight:600;">Environment</span>
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0.6rem;background:rgba(255,255,255,0.02);border-radius:4px;font-size:11.5px;">
+                        <span style="color:#E8EEF5;font-weight:600;">Environment</span>
                         <span class="badge badge-emerald">[NOMINAL]</span>
-                        <span style="font-family:'JetBrains Mono',monospace;color:#9AA4B2;">{impacts['green_area_str']} ({impacts['environment']['tree_canopy_removed_text']})</span>
+                        <span style="font-family:'JetBrains Mono',monospace;color:#8B97A6;">{impacts['green_area_str']} ({impacts['environment']['tree_canopy_removed_text']})</span>
                     </div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.35rem 0.5rem;background:rgba(255,255,255,0.02);border-radius:4px;font-size:12px;">
-                        <span style="color:#E6EDF3;font-weight:600;">Mobility</span>
-                        <span class="badge badge-cyan">[MODERATE]</span>
-                        <span style="font-family:'JetBrains Mono',monospace;color:#9AA4B2;">{impacts['additional_travel_str']} delay</span>
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0.6rem;background:rgba(255,255,255,0.02);border-radius:4px;font-size:11.5px;">
+                        <span style="color:#E8EEF5;font-weight:600;">Mobility</span>
+                        <span class="badge badge-emerald">[MODERATE]</span>
+                        <span style="font-family:'JetBrains Mono',monospace;color:#8B97A6;">{impacts['additional_travel_str']} delay</span>
                     </div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.35rem 0.5rem;background:rgba(255,255,255,0.02);border-radius:4px;font-size:12px;">
-                        <span style="color:#E6EDF3;font-weight:600;">Infrastructure</span>
-                        <span class="badge badge-amber">[MODERATE]</span>
-                        <span style="font-family:'JetBrains Mono',monospace;color:#9AA4B2;">{impacts['affected_assets_str']} structures</span>
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0.6rem;background:rgba(255,255,255,0.02);border-radius:4px;font-size:11.5px;">
+                        <span style="color:#E8EEF5;font-weight:600;">Infrastructure</span>
+                        <span class="badge badge-emerald">[MODERATE]</span>
+                        <span style="font-family:'JetBrains Mono',monospace;color:#8B97A6;">{impacts['affected_assets_str']} structures</span>
                     </div>
                 </div>
             </div>

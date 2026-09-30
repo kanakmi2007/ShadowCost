@@ -40,82 +40,82 @@ DARK_TILE_CSS = """
 """
 
 # DARK SPATIAL INTELLIGENCE COLOUR HIERARCHY
-DARK_BG = "#0B0F17"
-PANEL_BG = "#121826"
-PANEL_SOLID = "#151A21"
-PANEL_BORDER = "#2A313A"
-PRIMARY_TEAL = "#0F766E"
+DARK_BG = "#070A0F"
+PANEL_BG = "#0D131C"
+PANEL_SOLID = "#121824"
+PANEL_BORDER = "rgba(139, 151, 166, 0.12)"
+PRIMARY_TEAL = "#14B8A6"
 DARK_TEAL = "#0F766E"
 LIGHT_TEAL = "#5EEAD4"
 PALE_TEAL = "#CCFBF1"
 ACCENT_EMERALD = "#14B8A6"
-ACCENT_CYAN = "#00D2FF"
-TEXT_PRIMARY = "#E6EDF3"
-TEXT_SECONDARY = "#9AA4B2"
-TEXT_MUTED = "#6B7280"
+ACCENT_CYAN = "#5EEAD4"
+TEXT_PRIMARY = "#E8EEF5"
+TEXT_SECONDARY = "#8B97A6"
+TEXT_MUTED = "#4A5568"
 TEXT_TECH = "#7C8794"
 
 # Spatial Category Map Colors
 CATEGORY_COLORS = {
-    "park": ("#00F5A0", "rgba(0, 245, 160, 0.20)"),       # Environmental / Canopy
-    "commercial": ("#0F766E", "rgba(15, 118, 110, 0.20)"),  # Commercial / Activity
-    "residential": ("#00D2FF", "rgba(0, 210, 255, 0.20)"), # Residential / Mobility
-    "other": ("#7C8794", "rgba(124, 135, 148, 0.15)"),       # Infrastructure
+    "park": ("#5EEAD4", "rgba(94, 234, 212, 0.18)"),       # Environmental / Canopy
+    "commercial": ("#14B8A6", "rgba(20, 184, 166, 0.18)"),  # Commercial / Activity
+    "residential": ("#0F766E", "rgba(15, 118, 110, 0.20)"), # Residential / Mobility
+    "other": ("#7C8794", "rgba(124, 135, 148, 0.12)"),       # Infrastructure
 }
 
 # SVG Line Icons
 SVG_ICONS = {
     "logo": """<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#14B8A6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>""",
-    "pulse": """<svg width="10" height="10" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4" fill="#00F5A0"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle></svg>""",
-    "mobility": """<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00D2FF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>""",
-    "environment": """<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00F5A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>""",
-    "social": """<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7C8794" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>""",
+    "pulse": """<svg width="10" height="10" viewBox="0 0 12 12"><circle cx="6" cy="6" r="4" fill="#5EEAD4"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle></svg>""",
+    "mobility": """<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>""",
+    "environment": """<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#14B8A6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>""",
+    "social": """<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B97A6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>""",
     "infrastructure": """<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#14B8A6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="8" rx="1"/><path d="M17 14v7"/><path d="M7 14v7"/><path d="M17 3v3"/><path d="M7 3v3"/></svg>""",
     "radar": """<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#14B8A6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 10 10"/><path d="M12 12 19 5"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>""",
-    "layers": """<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7C8794" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>""",
-    "brief": """<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E6EDF3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>""",
-    "sparkles": """<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#00F5A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>""",
+    "layers": """<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8B97A6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>""",
+    "brief": """<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#E8EEF5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>""",
+    "sparkles": """<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5EEAD4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>""",
     "compass": """<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#14B8A6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>""",
 }
 
-# STRICT DEEP DARK MINIMAL SPATIAL INTELLIGENCE STYLESHEET (DE-BOXED)
+# STRICT DEEP DARK MINIMAL SPATIAL INTELLIGENCE STYLESHEET
 CSS_THEME = r"""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 :root {
-    --dark-bg: #0B0F17;
-    --panel-bg: #11161D;
-    --panel-solid: #151A21;
-    --panel-border: rgba(107, 114, 128, 0.15);
-    --primary-teal: #0F766E;
-    --bright-teal: #14B8A6;
+    --dark-bg: #070A0F;
+    --panel-bg: #0D131C;
+    --panel-solid: #121824;
+    --panel-border: rgba(139, 151, 166, 0.12);
+    --primary-teal: #14B8A6;
+    --bright-teal: #5EEAD4;
     --pale-teal: #CCFBF1;
-    --text-primary: #E6EDF3;
-    --text-secondary: #9AA4B2;
-    --text-muted: #6B7280;
+    --text-primary: #E8EEF5;
+    --text-secondary: #8B97A6;
+    --text-muted: #4A5568;
 }
 
 body, .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"], [data-testid="stMain"], [data-testid="stMainBlockContainer"], .main, section.main {
-    background-color: #0B0F17 !important;
-    color: #E6EDF3 !important;
+    background-color: #070A0F !important;
+    color: #E8EEF5 !important;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
     -webkit-font-smoothing: antialiased;
 }
 
 .main .block-container, .block-container {
-    background-color: #0B0F17 !important;
-    max-width: 1400px !important;
-    padding-top: 0.75rem !important;
-    padding-bottom: 2.5rem !important;
+    background-color: #070A0F !important;
+    max-width: 1440px !important;
+    padding-top: 0.6rem !important;
+    padding-bottom: 2rem !important;
 }
 
 header[data-testid="stHeader"], [data-testid="stToolbar"], [data-testid="stDecoration"], footer, #MainMenu { 
     display: none !important; 
-    background-color: #0B0F17 !important;
+    background-color: #070A0F !important;
 }
 
-/* De-boxed Containers: Remove heavy forced backgrounds & thick borders */
+/* Integrated Spatial Layout Containers */
 div[data-testid="stVerticalBlock"] > div > div {
     background-color: transparent !important;
     border: none !important;
@@ -123,29 +123,32 @@ div[data-testid="stVerticalBlock"] > div > div {
 }
 
 .glass-panel, .stCard, div[data-testid="stMetric"], .card-container {
-    background-color: #11161D !important;
-    border: 1px solid rgba(107, 114, 128, 0.15) !important;
-    border-radius: 8px !important;
-    color: #E6EDF3 !important;
+    background-color: #0D131C !important;
+    border: 1px solid rgba(139, 151, 166, 0.12) !important;
+    border-radius: 6px !important;
+    color: #E8EEF5 !important;
     box-shadow: none !important;
 }
 
 .glass-panel:hover, .stCard:hover {
-    border-color: rgba(20, 184, 166, 0.35) !important;
+    border-color: rgba(20, 184, 166, 0.3) !important;
 }
 
 h1, h2, h3, h4, h5, h6 {
-    color: #E6EDF3 !important;
-    font-family: 'Space Grotesk', 'Inter', sans-serif !important;
+    color: #E8EEF5 !important;
+    font-family: 'Inter', sans-serif !important;
     font-weight: 600 !important;
+    letter-spacing: -0.01em !important;
 }
 
 p, span, label, div {
-    color: #9AA4B2 !important;
+    color: #8B97A6 !important;
+    font-family: 'Inter', sans-serif !important;
 }
 
 .stMarkdown, .stText {
-    color: #9AA4B2 !important;
+    color: #8B97A6 !important;
+    font-family: 'Inter', sans-serif !important;
 }
 
 .accent-text, strong {
@@ -153,28 +156,31 @@ p, span, label, div {
 }
 
 input, textarea, div[data-baseweb="select"] {
-    background-color: #151A21 !important;
-    color: #E6EDF3 !important;
-    border: 1px solid rgba(107, 114, 128, 0.20) !important;
-    border-radius: 6px !important;
+    background-color: #0D131C !important;
+    color: #E8EEF5 !important;
+    border: 1px solid rgba(139, 151, 166, 0.18) !important;
+    border-radius: 5px !important;
+    font-family: 'Inter', sans-serif !important;
 }
 
 div[data-baseweb="select"] > div {
-    background-color: #151A21 !important;
-    border-color: rgba(107, 114, 128, 0.20) !important;
-    color: #E6EDF3 !important;
+    background-color: #0D131C !important;
+    border-color: rgba(139, 151, 166, 0.18) !important;
+    color: #E8EEF5 !important;
+    font-family: 'Inter', sans-serif !important;
 }
 
 .nav-status {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    font-weight: 600;
-    color: #14B8A6;
-    background: rgba(15, 118, 110, 0.15);
-    border: 1px solid rgba(15, 118, 110, 0.3);
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.08em !important;
+    color: #5EEAD4 !important;
+    background: rgba(20, 184, 166, 0.12);
+    border: 1px solid rgba(20, 184, 166, 0.25);
     padding: 0.2rem 0.55rem;
     border-radius: 4px;
 }
@@ -188,65 +194,103 @@ div[data-baseweb="select"] > div {
 }
 
 section[data-testid="stSidebar"] {
-    background: #0B0F17 !important;
-    border-right: 1px solid rgba(107, 114, 128, 0.15) !important;
+    background: #070A0F !important;
+    border-right: 1px solid rgba(139, 151, 166, 0.12) !important;
 }
-section[data-testid="stSidebar"] * { color: #9AA4B2 !important; }
+section[data-testid="stSidebar"] * { color: #8B97A6 !important; font-family: 'Inter', sans-serif !important; }
 
-/* Refined Minimal Buttons */
+/* Refined Spatial Control Buttons & Navigation Tabs */
 .stButton > button {
-    border-radius: 6px !important;
-    font-family: 'Space Grotesk', sans-serif !important;
-    font-weight: 600 !important;
-    font-size: 0.8rem !important;
+    border-radius: 5px !important;
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 500 !important;
+    font-size: 13px !important;
     padding: 0.35rem 0.75rem !important;
-    border: 1px solid rgba(107, 114, 128, 0.20) !important;
-    background: #11161D !important;
-    color: #9AA4B2 !important;
+    border: 1px solid rgba(139, 151, 166, 0.18) !important;
+    background: #0D131C !important;
+    color: #8B97A6 !important;
     transition: all 0.2s ease !important;
     min-height: 2.2rem !important;
 }
 
 .stButton > button:hover {
     border-color: rgba(20, 184, 166, 0.4) !important;
-    color: #F7F7F5 !important;
-    background: #151A21 !important;
+    color: #E8EEF5 !important;
+    background: #121824 !important;
 }
 
 .stButton > button[kind="primary"] {
-    background: #0F766E !important;
-    color: #FFFFFF !important;
+    background: #14B8A6 !important;
+    color: #070A0F !important;
     font-weight: 600 !important;
-    border: 1px solid #0F766E !important;
+    border: 1px solid #14B8A6 !important;
 }
 
 .stButton > button[kind="primary"]:hover {
-    background: #14B8A6 !important;
-    color: #FFFFFF !important;
-    border-color: #14B8A6 !important;
+    background: #5EEAD4 !important;
+    color: #070A0F !important;
+    border-color: #5EEAD4 !important;
+}
+
+/* Text-First Minimal Top Navigation Bar */
+div[data-testid="stHorizontalBlock"] div[data-testid="stColumn"] button[key^="global_tab_"][kind="secondary"] {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 2px solid transparent !important;
+    border-radius: 0px !important;
+    color: #8B97A6 !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    padding: 0.2rem 0.3rem !important;
+    min-height: 1.8rem !important;
+    box-shadow: none !important;
+}
+
+div[data-testid="stHorizontalBlock"] div[data-testid="stColumn"] button[key^="global_tab_"][kind="secondary"]:hover {
+    color: #E8EEF5 !important;
+    background: transparent !important;
+    border-bottom-color: rgba(20, 184, 166, 0.3) !important;
+}
+
+div[data-testid="stHorizontalBlock"] div[data-testid="stColumn"] button[key^="global_tab_"][kind="primary"] {
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 2px solid #14B8A6 !important;
+    border-radius: 0px !important;
+    color: #14B8A6 !important;
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 13px !important;
+    padding: 0.2rem 0.3rem !important;
+    min-height: 1.8rem !important;
+    box-shadow: none !important;
 }
 
 iframe[data-testid="stIframe"], iframe[title*="streamlit_folium"], div[data-testid="stIFrame"] iframe {
     width: 100% !important;
     height: 550px !important;
     min-height: 550px !important;
-    border-radius: 8px !important;
-    border: 1px solid rgba(107, 114, 128, 0.15) !important;
-    background-color: #0B0F17 !important;
+    border-radius: 6px !important;
+    border: 1px solid rgba(139, 151, 166, 0.12) !important;
+    background-color: #070A0F !important;
 }
 
 .leaflet-container {
-    background-color: #0B0F17 !important;
+    background-color: #070A0F !important;
 }
 
 .badge, .badge-emerald, .badge-cyan, .badge-rose, .badge-amber, .badge-live {
-    background: rgba(15, 118, 110, 0.15) !important;
+    background: rgba(20, 184, 166, 0.12) !important;
     color: #14B8A6 !important;
-    border: 1px solid rgba(15, 118, 110, 0.3) !important;
+    border: 1px solid rgba(20, 184, 166, 0.25) !important;
     border-radius: 4px !important;
-    font-size: 0.68rem !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 11px !important;
     font-weight: 600 !important;
-    padding: 0.18rem 0.55rem !important;
+    letter-spacing: 0.08em !important;
+    padding: 0.15rem 0.5rem !important;
 }
 </style>
 """
+

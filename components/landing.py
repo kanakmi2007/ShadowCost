@@ -15,12 +15,12 @@ def render_landing_stage(on_start_callback=None):
         """
         <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:1rem;margin-bottom:1.5rem;border-bottom:1px solid rgba(107,114,128,0.15);">
             <div style="display:flex;align-items:center;gap:0.75rem;">
-                <span style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.15rem;color:#F7F7F5;letter-spacing:-0.02em;">SHADOWCOST</span>
-                <span style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:#6B7280;letter-spacing:0.08em;padding-left:0.75rem;border-left:1px solid rgba(107,114,128,0.2);">SPATIAL IMPACT INTELLIGENCE</span>
+                <span style="font-family:'Inter',sans-serif;font-weight:700;font-size:1.15rem;color:#E8EEF5;letter-spacing:-0.02em;">SHADOWCOST</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#4A5568;letter-spacing:0.08em;padding-left:0.75rem;border-left:1px solid rgba(139,151,166,0.15);">SPATIAL IMPACT INTELLIGENCE</span>
             </div>
             <div style="display:flex;align-items:center;gap:1.25rem;">
-                <span style="font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:#6B7280;">URBAN ANALYSIS ENGINE &bull; GEOSPATIAL CORE</span>
-                <div style="display:inline-flex;align-items:center;gap:0.45rem;font-family:'JetBrains Mono',monospace;font-size:0.65rem;font-weight:600;color:#5EEAD4;background:rgba(15,118,110,0.12);padding:0.2rem 0.55rem;border-radius:4px;">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#4A5568;letter-spacing:0.08em;">URBAN ANALYSIS ENGINE &bull; GEOSPATIAL CORE</span>
+                <div style="display:inline-flex;align-items:center;gap:0.45rem;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.08em;color:#5EEAD4;background:rgba(20,184,166,0.12);padding:0.2rem 0.55rem;border-radius:4px;">
                     <span style="width:6px;height:6px;border-radius:50%;background:#14B8A6;"></span>
                     SYSTEM ACTIVE
                 </div>
@@ -36,16 +36,16 @@ def render_landing_stage(on_start_callback=None):
     with h_left:
         st.markdown(
             """
-            <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:#6B7280;font-weight:600;letter-spacing:0.1em;margin-bottom:0.6rem;display:flex;align-items:center;gap:0.45rem;">
-                <span style="display:inline-block;width:6px;height:6px;background:#0F766E;border-radius:1px;"></span>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#14B8A6;font-weight:600;letter-spacing:0.08em;margin-bottom:0.6rem;display:flex;align-items:center;gap:0.45rem;">
+                <span style="display:inline-block;width:6px;height:6px;background:#14B8A6;border-radius:1px;"></span>
                 01 / SPATIAL CONTEXT INTELLIGENCE
             </div>
-            <h1 style="font-family:'Space Grotesk',sans-serif;font-size:clamp(2.4rem, 4.2vw, 3.4rem);font-weight:600;letter-spacing:-0.03em;line-height:1.02;color:#F7F7F5;margin-bottom:1.1rem;">
+            <h1 style="font-family:'Inter',sans-serif;font-size:clamp(3rem, 4.5vw, 3.8rem);font-weight:600;letter-spacing:-0.03em;line-height:0.98;color:#E8EEF5;margin-bottom:1.1rem;">
                 SEE THE HIDDEN<br>
                 <span style="color:#14B8A6;">IMPACT</span> BEFORE YOU<br>
                 BUILD.
             </h1>
-            <div style="font-size:0.95rem;color:#9AA4B2;line-height:1.6;margin-bottom:1.75rem;max-width:520px;">
+            <div style="font-family:'Inter',sans-serif;font-size:15px;color:#8B97A6;line-height:1.55;margin-bottom:1.75rem;max-width:520px;font-weight:400;">
                 Understand the social, environmental, mobility, and infrastructure consequences of urban interventions before implementation.
             </div>
             """,
@@ -85,21 +85,20 @@ def render_landing_stage(on_start_callback=None):
   html, body {
     width: 100%;
     height: 100%;
-    background-color: #0B0F14;
-    color: #F7F7F5;
+    background-color: #070A0F;
+    color: #E8EEF5;
     font-family: 'JetBrains Mono', -apple-system, monospace;
     overflow: hidden;
   }
   .card-container {
-    background: #151A21;
-    border: 1px solid #2A313A;
-    border-radius: 8px;
+    background: #0D131C;
+    border: 1px solid rgba(139, 151, 166, 0.12);
+    border-radius: 6px;
     padding: 0.85rem;
     height: 375px;
     width: 100%;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
     position: relative;
   }
   .header {
@@ -107,13 +106,13 @@ def render_landing_stage(on_start_callback=None):
     justify-content: space-between;
     align-items: center;
     margin-bottom: 0.5rem;
-    border-bottom: 1px solid #2A313A;
+    border-bottom: 1px solid rgba(139, 151, 166, 0.12);
     padding-bottom: 0.4rem;
   }
   .title {
     font-size: 0.68rem;
     font-weight: 600;
-    color: #F7F7F5;
+    color: #E8EEF5;
     letter-spacing: 0.05em;
     display: flex;
     align-items: center;
@@ -122,8 +121,8 @@ def render_landing_stage(on_start_callback=None):
   .hud-stage {
     font-size: 0.62rem;
     color: #5EEAD4;
-    background: rgba(15, 118, 110, 0.15);
-    border: 1px solid rgba(15, 118, 110, 0.35);
+    background: rgba(20, 184, 166, 0.12);
+    border: 1px solid rgba(20, 184, 166, 0.25);
     padding: 0.15rem 0.5rem;
     border-radius: 3px;
     font-weight: 600;
@@ -133,9 +132,9 @@ def render_landing_stage(on_start_callback=None):
   .canvas-wrapper {
     flex: 1;
     position: relative;
-    background: #11161D;
-    border: 1px solid #2A313A;
-    border-radius: 6px;
+    background: #070A0F;
+    border: 1px solid rgba(139, 151, 166, 0.12);
+    border-radius: 4px;
     overflow: hidden;
     min-height: 280px;
   }
@@ -706,7 +705,7 @@ def render_landing_stage(on_start_callback=None):
             <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:#6B7280;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;">
                 03 / EVALUATION FRAMEWORK
             </div>
-            <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.35rem;font-weight:600;color:#F7F7F5;margin-top:0.2rem;letter-spacing:-0.02em;">
+            <h2 style="font-family:'Inter',sans-serif;font-size:1.35rem;font-weight:600;color:#F7F7F5;margin-top:0.2rem;letter-spacing:-0.02em;">
                 Four Spatial Lenses for Pre-Implementation Intelligence
             </h2>
         </div>
@@ -720,7 +719,7 @@ def render_landing_stage(on_start_callback=None):
         st.markdown(
             """
             <div style="border-left:2px solid #0F766E;padding-left:0.75rem;min-height:120px;">
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:#F7F7F5;font-size:0.82rem;margin-bottom:0.4rem;letter-spacing:0.02em;">
+                <div style="font-family:'Inter',sans-serif;font-weight:700;color:#F7F7F5;font-size:0.82rem;margin-bottom:0.4rem;letter-spacing:0.02em;">
                     SOCIAL EXPOSURE
                 </div>
                 <div style="font-size:0.78rem;color:#9AA4B2;line-height:1.5;">
@@ -735,7 +734,7 @@ def render_landing_stage(on_start_callback=None):
         st.markdown(
             """
             <div style="border-left:2px solid #0F766E;padding-left:0.75rem;min-height:120px;">
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:#F7F7F5;font-size:0.82rem;margin-bottom:0.4rem;letter-spacing:0.02em;">
+                <div style="font-family:'Inter',sans-serif;font-weight:700;color:#F7F7F5;font-size:0.82rem;margin-bottom:0.4rem;letter-spacing:0.02em;">
                     ENVIRONMENT
                 </div>
                 <div style="font-size:0.78rem;color:#9AA4B2;line-height:1.5;">
@@ -750,7 +749,7 @@ def render_landing_stage(on_start_callback=None):
         st.markdown(
             """
             <div style="border-left:2px solid #0F766E;padding-left:0.75rem;min-height:120px;">
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:#F7F7F5;font-size:0.82rem;margin-bottom:0.4rem;letter-spacing:0.02em;">
+                <div style="font-family:'Inter',sans-serif;font-weight:700;color:#F7F7F5;font-size:0.82rem;margin-bottom:0.4rem;letter-spacing:0.02em;">
                     MOBILITY NETWORK
                 </div>
                 <div style="font-size:0.78rem;color:#9AA4B2;line-height:1.5;">
@@ -765,7 +764,7 @@ def render_landing_stage(on_start_callback=None):
         st.markdown(
             """
             <div style="border-left:2px solid #0F766E;padding-left:0.75rem;min-height:120px;">
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:#F7F7F5;font-size:0.82rem;margin-bottom:0.4rem;letter-spacing:0.02em;">
+                <div style="font-family:'Inter',sans-serif;font-weight:700;color:#F7F7F5;font-size:0.82rem;margin-bottom:0.4rem;letter-spacing:0.02em;">
                     INFRASTRUCTURE
                 </div>
                 <div style="font-size:0.78rem;color:#9AA4B2;line-height:1.5;">

@@ -19,13 +19,13 @@ def render_comparison_stage(on_next_callback=None, on_export_callback=None):
         st.markdown(
             f"""
             <div style="margin-bottom:1.2rem;">
-                <div style="font-family:'Space Grotesk',sans-serif;font-size:0.75rem;color:#10B981;font-weight:700;letter-spacing:0.08em;display:flex;align-items:center;gap:0.4rem;">
-                    {SVG_ICONS['radar']} SCENARIO LAB A/B COMPARE
+                <div style="font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:#4A5568;font-weight:600;letter-spacing:0.1em;margin-bottom:0.4rem;">
+                    04 / SCENARIO LAB A/B COMPARE
                 </div>
-                <h1 style="font-family:'Space Grotesk',sans-serif;font-size:2.1rem;font-weight:800;color:#FFFFFF;letter-spacing:-0.03em;margin-top:0.1rem;margin-bottom:0.25rem;">
+                <h1 style="font-family:'Inter',sans-serif;font-size:1.8rem;font-weight:600;color:#E8EEF5;letter-spacing:-0.03em;margin-top:0.1rem;margin-bottom:0.25rem;">
                     Multi-Scenario Trade-off Matrix
                 </h1>
-                <div style="font-size:0.88rem;color:#E5E7EB;">
+                <div style="font-size:0.85rem;color:#8B97A6;">
                     Side-by-side spatial exposure analysis and comparative trade-off matrix.
                 </div>
             </div>
@@ -48,10 +48,10 @@ def render_comparison_stage(on_next_callback=None, on_export_callback=None):
     if not scen_a and not scen_b:
         st.markdown(
             """
-            <div class="glass-panel" style="padding:1.25rem;margin-bottom:1.25rem;">
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.9rem;color:#10B981;margin-bottom:0.4rem;">HOW TO SAVE & COMPARE SCENARIOS</div>
-                <div style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:#E5E7EB;">
-                    1. SPATIAL ANALYSIS &nbsp;→&nbsp; 2. DRAW INTERVENTION &nbsp;→&nbsp; 3. CLICK SAVE TO SLOT A / SLOT B &nbsp;→&nbsp; 4. VIEW LIVE LAB MATRIX
+            <div style="padding:0.85rem;background:#0D131C;border:1px solid rgba(139,151,166,0.12);border-radius:6px;margin-bottom:1rem;">
+                <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:0.85rem;color:#14B8A6;margin-bottom:0.3rem;">DRAW OR LOAD A SCENARIO TO BEGIN COMPARISON</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#8B97A6;">
+                    1. SPATIAL ANALYSIS &nbsp;&rarr;&nbsp; 2. DRAW INTERVENTION &nbsp;&rarr;&nbsp; 3. SAVE TO SLOT A / SLOT B &nbsp;&rarr;&nbsp; 4. VIEW LIVE MATRIX
                 </div>
             </div>
             """,
@@ -63,10 +63,10 @@ def render_comparison_stage(on_next_callback=None, on_export_callback=None):
         with c_slot_a:
             st.markdown(
                 """
-                <div class="glass-panel" style="border:2px dashed #1E293B;padding:1.5rem;text-align:center;">
-                    <div style="font-family:'Space Grotesk',sans-serif;font-size:0.8rem;color:#9CA3AF;font-weight:700;">SLOT A</div>
-                    <div style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.15rem;color:#FFFFFF;margin-top:0.25rem;">SCENARIO A</div>
-                    <div style="font-size:0.8rem;color:#9CA3AF;margin-top:0.5rem;margin-bottom:1rem;">+ Draw or save primary plan</div>
+                <div style="background:#0D131C;border:1px dashed rgba(139,151,166,0.2);border-radius:6px;padding:1.25rem;text-align:center;">
+                    <div style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#8B97A6;font-weight:700;">SLOT A</div>
+                    <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:1.1rem;color:#E8EEF5;margin-top:0.25rem;">SCENARIO A (BASELINE)</div>
+                    <div style="font-size:0.78rem;color:#4A5568;margin-top:0.4rem;margin-bottom:0.85rem;">+ Draw or save primary alignment plan</div>
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -79,10 +79,10 @@ def render_comparison_stage(on_next_callback=None, on_export_callback=None):
         with c_slot_b:
             st.markdown(
                 """
-                <div class="glass-panel" style="border:2px dashed #1E293B;padding:1.5rem;text-align:center;">
-                    <div style="font-family:'Space Grotesk',sans-serif;font-size:0.8rem;color:#9CA3AF;font-weight:700;">SLOT B</div>
-                    <div style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.15rem;color:#FFFFFF;margin-top:0.25rem;">SCENARIO B</div>
-                    <div style="font-size:0.8rem;color:#9CA3AF;margin-top:0.5rem;margin-bottom:1rem;">+ Draw or save alternative plan</div>
+                <div style="background:#0D131C;border:1px dashed rgba(139,151,166,0.2);border-radius:6px;padding:1.25rem;text-align:center;">
+                    <div style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#8B97A6;font-weight:700;">SLOT B</div>
+                    <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:1.1rem;color:#E8EEF5;margin-top:0.25rem;">SCENARIO B (ALTERNATIVE)</div>
+                    <div style="font-size:0.78rem;color:#4A5568;margin-top:0.4rem;margin-bottom:0.85rem;">+ Draw or save alternative alignment plan</div>
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -100,10 +100,10 @@ def render_comparison_stage(on_next_callback=None, on_export_callback=None):
         with c_slot_a:
             st.markdown(
                 f"""
-                <div class="glass-panel" style="border:1px solid #10B981;padding:1.2rem;">
+                <div style="background:#0D131C;border:1px solid #14B8A6;border-radius:6px;padding:1rem;">
                     <div class="badge badge-emerald" style="margin-bottom:0.4rem;">SCENARIO A SAVED</div>
-                    <div style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.15rem;color:#FFFFFF;">{scen_a["intervention_name"]}</div>
-                    <div style="font-size:0.8rem;color:#E5E7EB;margin-top:0.25rem;">Residents affected: {scen_a["people_affected_str"]} · Canopy: {scen_a["green_area_str"]}</div>
+                    <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:1.1rem;color:#E8EEF5;">{scen_a["intervention_name"]}</div>
+                    <div style="font-size:0.78rem;color:#8B97A6;margin-top:0.25rem;">Residents affected: {scen_a["people_affected_str"]} &bull; Canopy: {scen_a["green_area_str"]}</div>
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -112,9 +112,9 @@ def render_comparison_stage(on_next_callback=None, on_export_callback=None):
         with c_slot_b:
             st.markdown(
                 """
-                <div class="glass-panel" style="border:2px dashed #1E293B;padding:1.2rem;text-align:center;">
-                    <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.95rem;color:#FFFFFF;">Scenario B is Empty</div>
-                    <div style="font-size:0.8rem;color:#9CA3AF;margin-top:0.25rem;margin-bottom:0.75rem;">Draw an alternative corridor to generate trade-off matrix</div>
+                <div style="background:#0D131C;border:1px dashed rgba(139,151,166,0.2);border-radius:6px;padding:1rem;text-align:center;">
+                    <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:0.9rem;color:#E8EEF5;">Scenario B is Empty</div>
+                    <div style="font-size:0.78rem;color:#4A5568;margin-top:0.25rem;margin-bottom:0.65rem;">Draw an alternative corridor to generate trade-off matrix</div>
                 </div>
                 """,
                 unsafe_allow_html=True
@@ -137,8 +137,8 @@ def render_comparison_stage(on_next_callback=None, on_export_callback=None):
 
     st.markdown(
         f"""
-        <div class="glass-panel" style="padding:0.85rem 1.25rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:1rem;">
-            <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.85rem;color:#FFFFFF;">DYNAMIC METRIC DELTAS (Slot B vs A):</div>
+        <div style="padding:0.75rem 1rem;background:#0D131C;border:1px solid rgba(139,151,166,0.12);border-radius:6px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-bottom:1rem;">
+            <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:0.8rem;color:#E8EEF5;">DYNAMIC METRIC DELTAS (Slot B vs A):</div>
             <div style="display:flex;gap:0.75rem;">
                 {pop_d_badge}
                 {travel_d_badge}
@@ -155,13 +155,13 @@ def render_comparison_stage(on_next_callback=None, on_export_callback=None):
     with map_a_col:
         st.markdown(
             f"""
-            <div class="glass-panel" style="border:1px solid #10B981;padding:0.85rem;margin-bottom:0.75rem;">
+            <div style="padding:0.75rem;background:#0D131C;border:1px solid #14B8A6;border-radius:6px;margin-bottom:0.65rem;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem;">
                     <span class="badge badge-emerald">SCENARIO A MAP</span>
-                    <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#10B981;font-weight:700;">Index: {scen_a.get('cost', {}).get('shadow_cost_index', 50)}/100</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#14B8A6;font-weight:700;">Index: {scen_a.get('cost', {}).get('shadow_cost_index', 50)}/100</span>
                 </div>
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.05rem;color:#FFFFFF;">{scen_a["intervention_name"]}</div>
-                <div style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#9CA3AF;">Dimension: {scen_a["dimension_val"]}</div>
+                <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;color:#E8EEF5;">{scen_a["intervention_name"]}</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#8B97A6;">Dimension: {scen_a["dimension_val"]}</div>
             </div>
             """,
             unsafe_allow_html=True
@@ -185,13 +185,13 @@ def render_comparison_stage(on_next_callback=None, on_export_callback=None):
     with map_b_col:
         st.markdown(
             f"""
-            <div class="glass-panel" style="border:1px solid #00D2FF;padding:0.85rem;margin-bottom:0.75rem;">
+            <div style="padding:0.75rem;background:#0D131C;border:1px solid #5EEAD4;border-radius:6px;margin-bottom:0.65rem;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem;">
                     <span class="badge badge-cyan">SCENARIO B MAP</span>
-                    <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#00D2FF;font-weight:700;">Index: {scen_b.get('cost', {}).get('shadow_cost_index', 50)}/100</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#5EEAD4;font-weight:700;">Index: {scen_b.get('cost', {}).get('shadow_cost_index', 50)}/100</span>
                 </div>
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:1.05rem;color:#FFFFFF;">{scen_b["intervention_name"]}</div>
-                <div style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#9CA3AF;">Dimension: {scen_b["dimension_val"]}</div>
+                <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;color:#E8EEF5;">{scen_b["intervention_name"]}</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#8B97A6;">Dimension: {scen_b["dimension_val"]}</div>
             </div>
             """,
             unsafe_allow_html=True
@@ -218,20 +218,20 @@ def render_comparison_stage(on_next_callback=None, on_export_callback=None):
     table_rows_html = ""
     for row in matrix["rows"]:
         metric_name = row["metric"]
-        better_badge = f'<span class="badge badge-emerald">{row["better"]}</span>' if "✓" in row["better"] else f'<span style="color:#9CA3AF;">{row["better"]}</span>'
+        better_badge = f'<span class="badge badge-emerald">{row["better"]}</span>' if "✓" in row["better"] else f'<span style="color:#8B97A6;">{row["better"]}</span>'
 
         table_rows_html += f'''
         <tr>
-            <td style="color:#FFFFFF;font-weight:600;">{metric_name}</td>
-            <td class="mono" style="text-align:center;color:#E5E7EB;">{row["val_a"]}</td>
-            <td class="mono" style="text-align:center;color:#FFFFFF;font-weight:700;">{row["val_b"]}</td>
+            <td style="color:#E8EEF5;font-weight:600;">{metric_name}</td>
+            <td class="mono" style="text-align:center;color:#8B97A6;">{row["val_a"]}</td>
+            <td class="mono" style="text-align:center;color:#E8EEF5;font-weight:700;">{row["val_b"]}</td>
             <td style="text-align:center;">{better_badge}</td>
         </tr>
         '''
 
     st.markdown(
         f"""
-        <div class="glass-panel" style="padding:1rem;margin-bottom:1.1rem;">
+        <div style="padding:0.85rem;background:#0D131C;border:1px solid rgba(139,151,166,0.12);border-radius:6px;margin-bottom:1rem;">
             <table class="dark-table">
                 <thead>
                     <tr>
@@ -251,8 +251,8 @@ def render_comparison_stage(on_next_callback=None, on_export_callback=None):
     # Trade-off summary card
     st.markdown(
         f"""
-        <div class="glass-panel" style="border:1px solid rgba(16,185,129,0.3);padding:1rem 1.25rem;font-size:0.85rem;color:#E5E7EB;line-height:1.55;">
-            <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;color:#10B981;margin-bottom:0.3rem;">LAB TRADE-OFF SYNTHESIS</div>
+        <div style="padding:0.85rem;background:#0D131C;border:1px solid rgba(20,184,166,0.25);border-radius:6px;font-size:0.82rem;color:#E8EEF5;line-height:1.55;">
+            <div style="font-family:'Inter',sans-serif;font-weight:700;color:#14B8A6;margin-bottom:0.3rem;">LAB TRADE-OFF SYNTHESIS</div>
             {matrix["summary_text"]}
         </div>
         """,

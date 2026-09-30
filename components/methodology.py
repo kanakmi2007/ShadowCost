@@ -13,10 +13,10 @@ def render_methodology_stage(on_start_callback=None):
     st.markdown(
         f"""
         <div style="margin-bottom:1.25rem;">
-            <div style="font-family:'Space Grotesk',sans-serif;font-size:0.75rem;color:#10B981;font-weight:700;letter-spacing:0.08em;display:flex;align-items:center;gap:0.4rem;">
+            <div style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#10B981;font-weight:700;letter-spacing:0.08em;display:flex;align-items:center;gap:0.4rem;">
                 {SVG_ICONS['sparkles']} TRANSPARENT ANALYTICAL ARCHITECTURE
             </div>
-            <h1 style="font-family:'Space Grotesk',sans-serif;font-size:2.2rem;font-weight:800;color:#FFFFFF;letter-spacing:-0.03em;margin-top:0.15rem;margin-bottom:0.35rem;">
+            <h1 style="font-family:'Inter',sans-serif;font-size:2.2rem;font-weight:800;color:#FFFFFF;letter-spacing:-0.03em;margin-top:0.15rem;margin-bottom:0.35rem;">
                 Methodology & Mathematical Specifications
             </h1>
             <div style="font-size:0.9rem;color:#E5E7EB;max-width:850px;line-height:1.55;">
@@ -45,7 +45,7 @@ def render_methodology_stage(on_start_callback=None):
             """
             <div class="glass-panel" style="height:100%;position:relative;">
                 <div style="position:absolute;top:0.8rem;right:0.8rem;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#10B981;font-weight:700;">01</div>
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.9rem;color:#FFFFFF;">01 SPATIAL INGEST</div>
+                <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:0.9rem;color:#FFFFFF;">01 SPATIAL INGEST</div>
                 <div style="font-size:0.78rem;color:#E5E7EB;margin-top:0.4rem;line-height:1.5;">
                     Pulls target city boundaries, OpenStreetMap building geometries, network nodes, and canopy layers in EPSG:4326.
                 </div>
@@ -59,7 +59,7 @@ def render_methodology_stage(on_start_callback=None):
             """
             <div class="glass-panel" style="height:100%;position:relative;">
                 <div style="position:absolute;top:0.8rem;right:0.8rem;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#10B981;font-weight:700;">02</div>
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.9rem;color:#FFFFFF;">02 UTM PROJECTION</div>
+                <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:0.9rem;color:#FFFFFF;">02 UTM PROJECTION</div>
                 <div style="font-size:0.78rem;color:#E5E7EB;margin-top:0.4rem;line-height:1.5;">
                     Converts WGS84 coordinates dynamically to local metric UTM CRS for accurate area (m²) and corridor length calculations.
                 </div>
@@ -73,7 +73,7 @@ def render_methodology_stage(on_start_callback=None):
             """
             <div class="glass-panel" style="height:100%;position:relative;">
                 <div style="position:absolute;top:0.8rem;right:0.8rem;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#10B981;font-weight:700;">03</div>
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.9rem;color:#FFFFFF;">03 INTERSECTION</div>
+                <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:0.9rem;color:#FFFFFF;">03 INTERSECTION</div>
                 <div style="font-size:0.78rem;color:#E5E7EB;margin-top:0.4rem;line-height:1.5;">
                     Executes polygon/polyline buffer intersections across residential housing, commercial retail, and green canopy polygons.
                 </div>
@@ -87,7 +87,7 @@ def render_methodology_stage(on_start_callback=None):
             """
             <div class="glass-panel" style="height:100%;position:relative;">
                 <div style="position:absolute;top:0.8rem;right:0.8rem;font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#10B981;font-weight:700;">04</div>
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.9rem;color:#FFFFFF;">04 SYNTHESIS</div>
+                <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:0.9rem;color:#FFFFFF;">04 SYNTHESIS</div>
                 <div style="font-size:0.78rem;color:#E5E7EB;margin-top:0.4rem;line-height:1.5;">
                     Maps raw spatial numbers into normalized 0-100 lens sub-scores, composite Shadow Index, and OpenAI GPT-4o briefing note.
                 </div>
@@ -99,7 +99,7 @@ def render_methodology_stage(on_start_callback=None):
     st.markdown("<div style='height:1.5rem;'></div>", unsafe_allow_html=True)
 
     # KaTeX Mathematical Specifications (Native st.latex formatting)
-    st.markdown("<h3 style='font-family: Space Grotesk, sans-serif;'>📐 Mathematical Specifications</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='font-family: Inter, sans-serif;'>📐 Mathematical Specifications</h3>", unsafe_allow_html=True)
 
     f_c1, f_c2 = st.columns(2)
 
@@ -107,7 +107,7 @@ def render_methodology_stage(on_start_callback=None):
         st.markdown(
             """
             <div class="glass-panel" style="padding:1rem;margin-bottom:1rem;">
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.88rem;color:#10B981;margin-bottom:0.4rem;">
+                <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:0.88rem;color:#10B981;margin-bottom:0.4rem;">
                     1. Metric Corridor Buffer Formulation
                 </div>
             """,
@@ -129,7 +129,7 @@ def render_methodology_stage(on_start_callback=None):
         st.markdown(
             """
             <div class="glass-panel" style="padding:1rem;margin-bottom:1rem;">
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.88rem;color:#10B981;margin-bottom:0.4rem;">
+                <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:0.88rem;color:#10B981;margin-bottom:0.4rem;">
                     2. Composite Shadow Impact Index Formulation
                 </div>
             """,
@@ -153,7 +153,7 @@ def render_methodology_stage(on_start_callback=None):
     st.markdown(
         """
         <div class="glass-panel" style="padding:1rem;margin-bottom:1.25rem;">
-            <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1rem;color:#FFFFFF;margin-bottom:0.5rem;">
+            <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;color:#FFFFFF;margin-bottom:0.5rem;">
                 Four Spatial Lenses Specification
             </div>
             <table class="dark-table">

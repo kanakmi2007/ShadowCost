@@ -20,10 +20,10 @@ def render_exporter_stage():
     st.markdown(
         f"""
         <div style="margin-bottom:1.25rem;">
-            <div style="font-family:'Space Grotesk',sans-serif;font-size:0.75rem;color:#10B981;font-weight:700;letter-spacing:0.08em;display:flex;align-items:center;gap:0.4rem;">
+            <div style="font-family:'Inter',sans-serif;font-size:0.75rem;color:#10B981;font-weight:700;letter-spacing:0.08em;display:flex;align-items:center;gap:0.4rem;">
                 {SVG_ICONS['brief']} EXECUTIVE BRIEF EXPORTER
             </div>
-            <h1 style="font-family:'Space Grotesk',sans-serif;font-size:2.1rem;font-weight:800;color:#FFFFFF;letter-spacing:-0.03em;margin-top:0.15rem;margin-bottom:0.35rem;">
+            <h1 style="font-family:'Inter',sans-serif;font-size:2.1rem;font-weight:800;color:#FFFFFF;letter-spacing:-0.03em;margin-top:0.15rem;margin-bottom:0.35rem;">
                 Download Decision Payloads
             </h1>
             <div style="font-size:0.9rem;color:#E5E7EB;">
@@ -98,7 +98,7 @@ def render_exporter_stage():
             """
             <div class="glass-panel" style="padding:1.1rem;margin-bottom:0.75rem;">
                 <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#10B981;font-weight:700;">FORMAT: JSON</div>
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.95rem;color:#FFFFFF;margin-top:0.2rem;">SPATIAL JSON PAYLOAD</div>
+                <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:0.95rem;color:#FFFFFF;margin-top:0.2rem;">SPATIAL JSON PAYLOAD</div>
                 <div style="font-size:0.8rem;color:#E5E7EB;margin-top:0.25rem;margin-bottom:0.85rem;">Machine-readable spatial vector payload</div>
             </div>
             """,
@@ -117,7 +117,7 @@ def render_exporter_stage():
             """
             <div class="glass-panel" style="padding:1.1rem;margin-bottom:0.75rem;">
                 <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#00D2FF;font-weight:700;">FORMAT: CSV</div>
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.95rem;color:#FFFFFF;margin-top:0.2rem;">METRIC MATRIX CSV</div>
+                <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:0.95rem;color:#FFFFFF;margin-top:0.2rem;">METRIC MATRIX CSV</div>
                 <div style="font-size:0.8rem;color:#E5E7EB;margin-top:0.25rem;margin-bottom:0.85rem;">Tabular dataset for GIS spreadsheet tools</div>
             </div>
             """,
@@ -147,7 +147,7 @@ def render_exporter_stage():
             """
             <div class="glass-panel" style="padding:1.1rem;margin-bottom:0.75rem;">
                 <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#FFA500;font-weight:700;">FORMAT: BRIEF</div>
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.95rem;color:#FFFFFF;margin-top:0.2rem;">EXECUTIVE BRIEFING NOTE</div>
+                <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:0.95rem;color:#FFFFFF;margin-top:0.2rem;">EXECUTIVE BRIEFING NOTE</div>
                 <div style="font-size:0.8rem;color:#E5E7EB;margin-top:0.25rem;margin-bottom:0.85rem;">Decision-ready policy memorandum</div>
             </div>
             """,

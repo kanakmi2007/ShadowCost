@@ -72,7 +72,7 @@ def render_setup_stage(on_analyze_callback=None):
         st.markdown(
             """
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.88rem;color:#FFFFFF;">Scenario Studio Drawing Workspace</div>
+                <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:0.88rem;color:#FFFFFF;">Scenario Studio Drawing Workspace</div>
             </div>
             """,
             unsafe_allow_html=True
@@ -187,7 +187,7 @@ def render_setup_stage(on_analyze_callback=None):
             <div class="glass-panel" style="padding:1.1rem;margin-bottom:1rem;">
                 <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.4rem;">
                     {SVG_ICONS['layers']}
-                    <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.95rem;color:#FFFFFF;">Intervention Parameters</span>
+                    <span style="font-family:'Inter',sans-serif;font-weight:700;font-size:0.95rem;color:#FFFFFF;">Intervention Parameters</span>
                 </div>
                 <div style="font-size:0.78rem;color:#9CA3AF;margin-bottom:0.85rem;">Corridor & spatial geometry buffer</div>
             """,
