@@ -15,8 +15,43 @@ from core.ai_synthesizer import call_ai_synthesis, generate_mitigation_badges
 from core.scenario_manager import save_scenario, get_scenarios
 
 
+def generate_whatif_explanation(base_impacts: dict, what_if_impacts: dict, gb: float, row: float, transit: bool, year: int) -> str:
+    """Generates a deterministic explanation sentence strictly from calculated numerical deltas."""
+    reasons = []
+    
+    if gb > 0:
+        env_d = base_impacts["env_score"] - what_if_impacts["env_score"]
+        ha_d = base_impacts["green_area_ha"] - what_if_impacts["green_area_ha"]
+        if ha_d > 0 or env_d > 0:
+            reasons.append(f"Adding a {int(gb)} m green buffer reduces environmental exposure by preserving tree canopy.")
+        else:
+            reasons.append(f"Adding a {int(gb)} m green buffer creates a spatial buffer offset for the corridor.")
+            
+    if row != 0:
+        if row < 0:
+            reasons.append(f"Reducing corridor width by {abs(int(row))} m decreases residential displacement and asset exposure.")
+        else:
+            reasons.append(f"Increasing corridor width by {int(row)} m expands spatial footprint and infrastructure intersection.")
+            
+    if transit:
+        reasons.append("Activating public transit spur absorbs mobility demand, reducing travel delay by 15%.")
+        
+    if year > 2026:
+        if year == 2028:
+            reasons.append("2028 forecast reflects baseline operational state post-construction peak.")
+        elif year == 2031:
+            reasons.append("2031 forecast incorporates initial 10% canopy regrowth and transit efficiency.")
+        elif year == 2035:
+            reasons.append("2035 long-term horizon incorporates 20% green canopy regrowth recovery and full transit efficiency.")
+
+    if not reasons:
+        return "Baseline intervention parameters active. Adjust parameters above to simulate policy modifications."
+        
+    return " ".join(reasons)
+
+
 def draw_plotly_radar_chart(impacts: dict) -> go.Figure:
-    """Renders interactive Plotly radar chart with smooth transition animations."""
+    """Renders interactive Plotly radar chart with dark transparent background."""
     categories = ['Social', 'Canopy', 'Mobility', 'Infrastructure']
     
     val_social = min(100, max(15, int(impacts.get('people_affected', 0) / 120.0)))
@@ -32,22 +67,34 @@ def draw_plotly_radar_chart(impacts: dict) -> go.Figure:
         r=values,
         theta=cat_closed,
         fill='toself',
-        fillcolor='rgba(16, 185, 129, 0.25)',
-        line=dict(color='#10B981', width=3),
-        marker=dict(size=6, color='#00F5A0'),
+        fillcolor='rgba(20, 184, 166, 0.20)',
+        line=dict(color='#14B8A6', width=2),
+        marker=dict(size=5, color='#5EEAD4'),
         name='Live Spatial Exposure'
     ))
     
     fig.update_layout(
-        transition={"duration": 500, "easing": "cubic-in-out"},
+        transition={"duration": 400, "easing": "cubic-in-out"},
         polar=dict(
-            radialaxis=dict(visible=True, range=[0, 100], color="#6B7280", gridcolor="#E5E7EB"),
-            angularaxis=dict(color="#111111", gridcolor="#E5E7EB"),
-            bgcolor="#FFFFFF",
+            radialaxis=dict(
+                visible=True,
+                range=[0, 100],
+                color="#9AA4B2",
+                gridcolor="rgba(154, 164, 178, 0.18)",
+                linecolor="rgba(154, 164, 178, 0.25)",
+                tickfont=dict(size=8, color="#9AA4B2")
+            ),
+            angularaxis=dict(
+                color="#9AA4B2",
+                gridcolor="rgba(154, 164, 178, 0.18)",
+                linecolor="rgba(154, 164, 178, 0.25)",
+                tickfont=dict(size=10, color="#9AA4B2", family="Space Grotesk, sans-serif")
+            ),
+            bgcolor="rgba(0,0,0,0)",
         ),
-        paper_bgcolor="#FFFFFF",
-        plot_bgcolor="#FFFFFF",
-        margin=dict(l=25, r=25, t=25, b=25),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        margin=dict(l=30, r=30, t=25, b=25),
         height=210,
         showlegend=False
     )
@@ -55,19 +102,19 @@ def draw_plotly_radar_chart(impacts: dict) -> go.Figure:
 
 
 def draw_radial_arc_gauge(score: int, risk_level: str) -> str:
-    """Generates clean SVG radial arc meter card HTML. Stripped raw string with zero trailing tags."""
-    color = "#10B981" if score < 30 else ("#FFA500" if score < 60 else "#FF4757")
+    """Generates clean SVG radial arc meter card HTML. Restrained dark surface."""
+    color = "#14B8A6" if score < 30 else ("#FFA500" if score < 60 else "#FF4757")
     stroke_dashoffset = 157.08 * (1.0 - (min(100, max(0, score)) / 100.0))
     gauge_html = (
-        f'<div class="glass-panel" style="height:210px;padding:12px;text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;">'
-        f'<div style="font-family:\'Space Grotesk\',sans-serif;font-size:0.68rem;font-weight:700;color:#9CA3AF;letter-spacing:0.05em;margin-bottom:4px;">EXECUTIVE IMPACT GAUGE</div>'
+        f'<div style="background:#121826;border:1px solid rgba(255,255,255,0.07);border-radius:10px;height:210px;padding:12px;text-align:center;display:flex;flex-direction:column;justify-content:center;align-items:center;">'
+        f'<div style="font-family:\'Space Grotesk\',sans-serif;font-size:0.68rem;font-weight:700;color:#9AA4B2;letter-spacing:0.05em;margin-bottom:4px;">EXECUTIVE IMPACT GAUGE</div>'
         f'<div style="position:relative;width:170px;height:95px;margin:0 auto;">'
         f'<svg width="170" height="95" viewBox="0 0 120 70">'
         f'<path d="M 10 60 A 50 50 0 0 1 110 60" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="12" stroke-linecap="round"/>'
         f'<path d="M 10 60 A 50 50 0 0 1 110 60" fill="none" stroke="{color}" stroke-width="12" stroke-linecap="round" stroke-dasharray="157.08" stroke-dashoffset="{stroke_dashoffset}"/>'
         f'</svg>'
         f'<div style="position:absolute;bottom:4px;left:0;right:0;text-align:center;">'
-        f'<div style="font-family:\'JetBrains Mono\',monospace;font-size:1.6rem;font-weight:800;color:#FFFFFF;line-height:1;">{score}<span style="font-size:0.85rem;color:#9CA3AF;">/100</span></div>'
+        f'<div style="font-family:\'JetBrains Mono\',monospace;font-size:1.6rem;font-weight:800;color:#E6EDF3;line-height:1;">{score}<span style="font-size:0.85rem;color:#9AA4B2;">/100</span></div>'
         f'<div style="font-family:\'Space Grotesk\',sans-serif;font-size:0.68rem;font-weight:700;color:{color};margin-top:2px;">{risk_level.upper()} RISK INDEX</div>'
         f'</div>'
         f'</div>'
@@ -89,11 +136,11 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
     demo_seed = st.session_state.get("demo_seed", 42)
     api_key = st.session_state.get("openai_api_key", "")
 
-    # Retrieve Policy Sandbox & Timeline Forecast state variables
-    policy_green_buffer = float(st.session_state.get("policy_green_buffer", 0.0))
-    policy_row_adj = float(st.session_state.get("policy_row_adj", 0.0))
-    policy_transit_spur = bool(st.session_state.get("policy_transit_spur", False))
-    timeline_year = int(st.session_state.get("timeline_year", 2026))
+    # Retrieve What-If Scenario Simulator state variables
+    whatif_green_buffer = float(st.session_state.get("whatif_green_buffer", 0.0))
+    whatif_row_adj = float(st.session_state.get("whatif_row_adj", 0.0))
+    whatif_transit_spur = bool(st.session_state.get("whatif_transit_spur", False))
+    whatif_forecast_year = int(st.session_state.get("whatif_forecast_year", 2026))
 
     location_result = geocode_city_with_buffer(current_city, buffer_meters=radius_km * 1000.0)
     if location_result is None:
@@ -111,18 +158,30 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
             lambda c: "HIGH (85/100)" if c == "residential" else ("MODERATE (55/100)" if c == "commercial" else "LOW (20/100)")
         )
 
-    # Parse Drawing & Run Real-Time Calculations with Policy Sandbox & Timeline Forecasting
+    # Parse Drawing & Run Real-Time Calculations (Base vs What-If)
     map_state = st.session_state.get("intervention_map", {})
     drawn_geom, gem_type = parse_drawing_geometry(map_state)
 
-    impacts = calculate_impacts(
+    base_impacts = calculate_impacts(
         drawn_geom, gem_type, demographic_gdf,
         road_width=road_width, detour_factor=detour_factor,
-        green_buffer_offset=policy_green_buffer,
-        row_width_adj=policy_row_adj,
-        transit_spur=policy_transit_spur,
-        forecast_year=timeline_year
+        green_buffer_offset=0.0,
+        row_width_adj=0.0,
+        transit_spur=False,
+        forecast_year=2026
     )
+
+    what_if_impacts = calculate_impacts(
+        drawn_geom, gem_type, demographic_gdf,
+        road_width=road_width, detour_factor=detour_factor,
+        green_buffer_offset=whatif_green_buffer,
+        row_width_adj=whatif_row_adj,
+        transit_spur=whatif_transit_spur,
+        forecast_year=whatif_forecast_year
+    )
+
+    impacts = base_impacts
+    timeline_year = whatif_forecast_year
 
     idx_score = impacts["shadow_cost_index"]
     risk_lbl = impacts["risk_level"]
@@ -134,16 +193,16 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
         st.markdown(
             f"""
             <div style="margin-bottom:0.85rem;">
-                <div style="font-family:'Space Grotesk',sans-serif;font-size:0.75rem;color:#14B8A6;font-weight:700;letter-spacing:0.08em;display:flex;align-items:center;gap:0.4rem;">
+                <div style="font-family:'Space Grotesk',sans-serif;font-size:12px;color:#14B8A6;font-weight:700;letter-spacing:0.08em;display:flex;align-items:center;gap:0.4rem;">
                     {SVG_ICONS['radar']} SPATIAL IMPACT COMMAND CENTER
                 </div>
-                <h1 style="font-family:'Space Grotesk',sans-serif;font-size:2.1rem;font-weight:800;color:#FFFFFF;letter-spacing:-0.03em;margin-top:0.1rem;margin-bottom:0.25rem;">
+                <h1 style="font-family:'Space Grotesk',sans-serif;font-size:34px;font-weight:600;color:#E6EDF3;letter-spacing:-0.02em;margin-top:0.1rem;margin-bottom:0.25rem;">
                     Command Center Intelligence
                 </h1>
-                <div style="font-size:0.85rem;color:#E5E7EB;display:flex;align-items:center;gap:0.75rem;">
-                    <span>LOCATION: <b>{display_name[:45]}</b></span>
+                <div style="font-size:13.5px;color:#9AA4B2;display:flex;align-items:center;gap:0.75rem;">
+                    <span>LOCATION: <b style="color:#E6EDF3;">{display_name[:45]}</b></span>
                     <span>•</span>
-                    <span style="color:#00D2FF;">{impacts["intervention_name"]} ({impacts["dimension_val"]})</span>
+                    <span style="color:#5EEAD4;">{impacts["intervention_name"]} ({impacts["dimension_val"]})</span>
                     <span>•</span>
                     <span class="badge badge-emerald">FORECAST: {timeline_year}</span>
                 </div>
@@ -165,45 +224,105 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
                     on_export_callback(5)
                 st.rerun()
 
-    # TOP ANALYTICS ROW: Executive Impact Gauge (LEFT) + 4 Primary Metric HUD Cards (RIGHT)
-    col_gauge, col_metrics = st.columns([1.2, 3.6], gap="medium")
+    # TOP ANALYTICS ROW: Executive Impact Gauge (LEFT) + 4 Primary Metrics (RIGHT)
+    col_gauge, col_metrics = st.columns([1.1, 3.7], gap="medium")
 
     with col_gauge:
         st.markdown(draw_radial_arc_gauge(idx_score, risk_lbl), unsafe_allow_html=True)
-        st.plotly_chart(draw_plotly_radar_chart(impacts), use_container_width=True, config={'displayModeBar': False})
 
     with col_metrics:
         m1, m2 = st.columns(2)
         m3, m4 = st.columns(2)
 
         with m1:
-            st.metric(
-                label="PEOPLE AFFECTED",
-                value=impacts["people_affected_str"],
-                delta=impacts["people_margin"],
-                delta_color="off"
+            st.markdown(
+                f"""
+                <div style="padding:0.2rem 0.4rem;margin-bottom:0.5rem;">
+                    <div style="font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:500;color:#9AA4B2;letter-spacing:0.04em;">PEOPLE AFFECTED</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:600;color:#E6EDF3;line-height:1.1;margin-top:2px;">{impacts["people_affected_str"]}</div>
+                    <div style="font-size:12px;color:#6B7280;margin-top:2px;">↑ {impacts["people_margin"]}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
             )
         with m2:
-            st.metric(
-                label="ADDITIONAL TRAVEL",
-                value=impacts["additional_travel_str"],
-                delta=impacts["travel_subtext"],
-                delta_color="off"
+            st.markdown(
+                f"""
+                <div style="padding:0.2rem 0.4rem;margin-bottom:0.5rem;">
+                    <div style="font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:500;color:#9AA4B2;letter-spacing:0.04em;">ADDITIONAL TRAVEL</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:600;color:#E6EDF3;line-height:1.1;margin-top:2px;">{impacts["additional_travel_str"]}</div>
+                    <div style="font-size:12px;color:#6B7280;margin-top:2px;">↑ {impacts["travel_subtext"]}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
             )
         with m3:
-            st.metric(
-                label="GREEN CANOPY AFFECTED",
-                value=impacts["green_area_str"],
-                delta=impacts["green_cover_change_str"],
-                delta_color="off"
+            st.markdown(
+                f"""
+                <div style="padding:0.2rem 0.4rem;">
+                    <div style="font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:500;color:#9AA4B2;letter-spacing:0.04em;">GREEN CANOPY AFFECTED</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:600;color:#E6EDF3;line-height:1.1;margin-top:2px;">{impacts["green_area_str"]}</div>
+                    <div style="font-size:12px;color:#6B7280;margin-top:2px;">↑ {impacts["green_cover_change_str"]}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
             )
         with m4:
-            st.metric(
-                label="AFFECTED ASSETS",
-                value=impacts["affected_assets_str"],
-                delta=impacts["affected_assets_subtext"],
-                delta_color="off"
+            st.markdown(
+                f"""
+                <div style="padding:0.2rem 0.4rem;">
+                    <div style="font-family:'Space Grotesk',sans-serif;font-size:12.5px;font-weight:500;color:#9AA4B2;letter-spacing:0.04em;">AFFECTED ASSETS</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:600;color:#E6EDF3;line-height:1.1;margin-top:2px;">{impacts["affected_assets_str"]}</div>
+                    <div style="font-size:12px;color:#6B7280;margin-top:2px;">↑ {impacts["affected_assets_subtext"]}</div>
+                </div>
+                """,
+                unsafe_allow_html=True
             )
+
+    # COMPACT IMPACT SIGNALS SECTION (Replacing radar visualization)
+    soc_bar = max(4, min(100, impacts.get("social_score", 10)))
+    mob_bar = max(4, min(100, impacts.get("mobility_score", 10)))
+    env_bar = max(4, min(100, impacts.get("env_score", 10)))
+    inf_bar = max(4, min(100, impacts.get("infra_score", 10)))
+
+    st.markdown(
+        f"""
+        <div style="margin-top:0.4rem;margin-bottom:0.75rem;padding:0.6rem 0.8rem;background:#121826;border:1px solid rgba(255,255,255,0.06);border-radius:6px;">
+            <div style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;color:#9AA4B2;letter-spacing:0.06em;margin-bottom:0.4rem;">IMPACT SIGNALS</div>
+            <div style="display:flex;flex-direction:column;gap:0.35rem;">
+                <div style="display:flex;align-items:center;gap:0.6rem;font-size:11.5px;font-family:'Space Grotesk',sans-serif;">
+                    <span style="width:130px;color:#E6EDF3;font-weight:500;">SOCIAL EXPOSURE</span>
+                    <div style="flex:1;background:rgba(255,255,255,0.06);height:4px;border-radius:2px;overflow:hidden;">
+                        <div style="background:#14B8A6;width:{soc_bar}%;height:100%;"></div>
+                    </div>
+                    <span style="width:30px;text-align:right;font-family:'JetBrains Mono',monospace;color:#9AA4B2;">{impacts.get("social_score", 10)}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:0.6rem;font-size:11.5px;font-family:'Space Grotesk',sans-serif;">
+                    <span style="width:130px;color:#E6EDF3;font-weight:500;">MOBILITY SHIFT</span>
+                    <div style="flex:1;background:rgba(255,255,255,0.06);height:4px;border-radius:2px;overflow:hidden;">
+                        <div style="background:#14B8A6;width:{mob_bar}%;height:100%;"></div>
+                    </div>
+                    <span style="width:30px;text-align:right;font-family:'JetBrains Mono',monospace;color:#9AA4B2;">{impacts.get("mobility_score", 10)}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:0.6rem;font-size:11.5px;font-family:'Space Grotesk',sans-serif;">
+                    <span style="width:130px;color:#E6EDF3;font-weight:500;">ENVIRONMENT</span>
+                    <div style="flex:1;background:rgba(255,255,255,0.06);height:4px;border-radius:2px;overflow:hidden;">
+                        <div style="background:#14B8A6;width:{env_bar}%;height:100%;"></div>
+                    </div>
+                    <span style="width:30px;text-align:right;font-family:'JetBrains Mono',monospace;color:#9AA4B2;">{impacts.get("env_score", 10)}</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:0.6rem;font-size:11.5px;font-family:'Space Grotesk',sans-serif;">
+                    <span style="width:130px;color:#E6EDF3;font-weight:500;">INFRASTRUCTURE</span>
+                    <div style="flex:1;background:rgba(255,255,255,0.06);height:4px;border-radius:2px;overflow:hidden;">
+                        <div style="background:#14B8A6;width:{inf_bar}%;height:100%;"></div>
+                    </div>
+                    <span style="width:30px;text-align:right;font-family:'JetBrains Mono',monospace;color:#9AA4B2;">{impacts.get("infra_score", 10)}</span>
+                </div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     st.markdown("<div style='height:0.6rem;'></div>", unsafe_allow_html=True)
 
@@ -393,32 +512,172 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
         st.caption(f"Phase Characteristics: {year_descs[timeline_year]}")
 
     with r_info:
-        # FEATURE 1: INTERACTIVE POLICY MITIGATION SANDBOX PANEL
-        with st.expander("POLICY MITIGATION SANDBOX", expanded=True):
+        # WHAT-IF SCENARIO SIMULATOR WORKSPACE PANEL
+        with st.expander("WHAT-IF SCENARIO SIMULATOR", expanded=True):
+            # 1. HEADER
             st.markdown(
-                """
-                <div style="font-family:'Space Grotesk',sans-serif;font-size:0.8rem;font-weight:600;color:#5EEAD4;margin-bottom:0.3rem;">
-                    Live Policy Adjustments & Offsets
+                f"""
+                <div style="margin-bottom:0.6rem;">
+                    <div style="font-family:'Space Grotesk',sans-serif;font-size:1.05rem;font-weight:600;color:#E6EDF3;">
+                        <span style="color:#14B8A6;">WHAT-IF</span> Scenario Simulator
+                    </div>
+                    <div style="font-size:12.5px;color:#9AA4B2;margin-top:2px;">
+                        Test how planning changes affect projected urban impact. Current: <b style="color:#E6EDF3;">{base_impacts['intervention_name']}</b>
+                    </div>
                 </div>
                 """,
                 unsafe_allow_html=True
             )
-            p_col1, p_col2 = st.columns(2)
-            with p_col1:
-                new_gb = st.slider("Green Buffer (m)", 0, 20, int(policy_green_buffer), 1, key="dash_gb_offset_slider")
-                if new_gb != policy_green_buffer:
-                    st.session_state["policy_green_buffer"] = float(new_gb)
+
+            # 2. PLANNING CONTROLS CONSOLE
+            st.markdown("<div style='font-family:\"Space Grotesk\",sans-serif;font-size:11px;font-weight:600;color:#6B7280;letter-spacing:0.06em;margin-bottom:0.25rem;'>PLANNING CONTROLS</div>", unsafe_allow_html=True)
+
+            c_col1, c_col2 = st.columns(2)
+            with c_col1:
+                new_gb = st.slider("Green Buffer (m)", 0, 20, int(whatif_green_buffer), 1, key="whatif_gb_slider")
+                if new_gb != whatif_green_buffer:
+                    st.session_state["whatif_green_buffer"] = float(new_gb)
                     st.rerun()
-            with p_col2:
-                new_row = st.slider("ROW Width Adj (m)", -5, 5, int(policy_row_adj), 1, key="dash_row_adj_slider")
-                if new_row != policy_row_adj:
-                    st.session_state["policy_row_adj"] = float(new_row)
+            with c_col2:
+                new_row = st.slider("Corridor Width Adj (m)", -5, 5, int(whatif_row_adj), 1, key="whatif_row_slider")
+                if new_row != whatif_row_adj:
+                    st.session_state["whatif_row_adj"] = float(new_row)
                     st.rerun()
 
-            new_transit = st.checkbox("Public Transit Spur (-15% delay penalty)", value=policy_transit_spur, key="dash_transit_spur_cb")
-            if new_transit != policy_transit_spur:
-                st.session_state["policy_transit_spur"] = new_transit
+            c_col3, c_col4 = st.columns(2)
+            with c_col3:
+                new_transit = st.toggle("Public Transit Spur (-15% delay)", value=whatif_transit_spur, key="whatif_transit_toggle")
+                if new_transit != whatif_transit_spur:
+                    st.session_state["whatif_transit_spur"] = new_transit
+                    st.rerun()
+            with c_col4:
+                new_year = st.select_slider(
+                    "Forecast Horizon",
+                    options=[2026, 2028, 2031, 2035],
+                    value=whatif_forecast_year,
+                    key="whatif_year_slider"
+                )
+                if new_year != whatif_forecast_year:
+                    st.session_state["whatif_forecast_year"] = new_year
+                    st.rerun()
+
+            if st.button("Reset Scenario", key="whatif_reset_btn", type="secondary", use_container_width=True):
+                st.session_state["whatif_green_buffer"] = 0.0
+                st.session_state["whatif_row_adj"] = 0.0
+                st.session_state["whatif_transit_spur"] = False
+                st.session_state["whatif_forecast_year"] = 2026
                 st.rerun()
+
+            st.markdown("<div style='height:0.4rem;'></div>", unsafe_allow_html=True)
+
+            # 3. EXECUTIVE IMPACT COMPARISON
+            base_idx = base_impacts["shadow_cost_index"]
+            whatif_idx = what_if_impacts["shadow_cost_index"]
+            idx_diff = whatif_idx - base_idx
+
+            if base_idx > 0:
+                idx_pct = ((whatif_idx - base_idx) / float(base_idx)) * 100.0
+            else:
+                idx_pct = 0.0
+
+            if idx_diff < 0 or idx_pct < 0:
+                diff_color = "#10B981"
+                diff_text = f"↓ {abs(idx_pct):.1f}%" if idx_pct != 0 else f"↓ {abs(idx_diff)} pts"
+            elif idx_diff > 0 or idx_pct > 0:
+                diff_color = "#EF4444"
+                diff_text = f"↑ {abs(idx_pct):.1f}%" if idx_pct != 0 else f"↑ {abs(idx_diff)} pts"
+            else:
+                diff_color = "#9AA4B2"
+                diff_text = "NO CHANGE"
+
+            st.markdown(
+                f"""
+                <div style="padding:0.4rem 0;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:0.6rem;display:flex;align-items:center;justify-content:space-between;">
+                    <div>
+                        <div style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;color:#9AA4B2;letter-spacing:0.04em;">EXECUTIVE IMPACT INDEX</div>
+                        <div style="display:flex;align-items:baseline;gap:0.5rem;margin-top:2px;">
+                            <span style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;color:#9AA4B2;">{base_idx}</span>
+                            <span style="font-size:14px;color:#6B7280;">→</span>
+                            <span style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:600;color:#E6EDF3;">{whatif_idx}</span>
+                            <span style="font-family:'Space Grotesk',sans-serif;font-size:10px;font-weight:500;color:#6B7280;margin-left:2px;">WHAT-IF</span>
+                        </div>
+                    </div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:{diff_color};background:rgba(255,255,255,0.03);padding:0.2rem 0.55rem;border-radius:4px;border:1px solid {diff_color}30;white-space:nowrap;">
+                        {diff_text}
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            # 4. DIMENSION DELTA VISUALIZATION (Non-wrapping BASE & WHAT-IF labels)
+            lenses = [
+                ("SOCIAL EXPOSURE", base_impacts["social_score"], what_if_impacts["social_score"], base_impacts["people_affected"], what_if_impacts["people_affected"]),
+                ("MOBILITY IMPACT", base_impacts["mobility_score"], what_if_impacts["mobility_score"], base_impacts["additional_travel_pct"], what_if_impacts["additional_travel_pct"]),
+                ("ENVIRONMENT", base_impacts["env_score"], what_if_impacts["env_score"], base_impacts["green_area_ha"], what_if_impacts["green_area_ha"]),
+                ("INFRASTRUCTURE", base_impacts["infra_score"], what_if_impacts["infra_score"], base_impacts["affected_assets_count"], what_if_impacts["affected_assets_count"]),
+            ]
+
+            lens_rows_html = ""
+            for name, b_score, w_score, b_raw, w_raw in lenses:
+                s_diff = w_score - b_score
+                if b_raw > 0:
+                    pct_d = ((w_raw - b_raw) / float(b_raw)) * 100.0
+                else:
+                    pct_d = 0.0
+
+                if s_diff < 0 or pct_d < 0:
+                    badge_c = "#10B981"
+                    badge_val = f"↓ {abs(pct_d):.1f}%" if pct_d != 0 else f"↓ {abs(s_diff)} pts"
+                elif s_diff > 0 or pct_d > 0:
+                    badge_c = "#EF4444"
+                    badge_val = f"↑ {abs(pct_d):.1f}%" if pct_d != 0 else f"↑ {abs(s_diff)} pts"
+                else:
+                    badge_c = "#9AA4B2"
+                    badge_val = "0.0%"
+
+                b_bar_width = max(4, min(100, b_score))
+                w_bar_width = max(4, min(100, w_score))
+
+                lens_rows_html += f"""
+                <div style="margin-bottom:0.5rem;">
+                    <div style="display:flex;justify-content:space-between;font-size:11.5px;font-family:'Space Grotesk',sans-serif;margin-bottom:0.2rem;">
+                        <span style="color:#E6EDF3;font-weight:600;letter-spacing:0.02em;">{name}</span>
+                        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:{badge_c};font-weight:700;">{badge_val}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:0.4rem;font-family:'JetBrains Mono',monospace;font-size:11px;color:#9AA4B2;margin-bottom:0.15rem;">
+                        <span style="white-space:nowrap;width:55px;font-size:10px;font-weight:600;color:#9AA4B2;">BASE</span>
+                        <div style="flex:1;background:rgba(255,255,255,0.06);height:4px;border-radius:2px;overflow:hidden;">
+                            <div style="background:#6B7280;width:{b_bar_width}%;height:100%;"></div>
+                        </div>
+                        <span style="width:32px;text-align:right;color:#9AA4B2;">{b_score}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:0.4rem;font-family:'JetBrains Mono',monospace;font-size:11px;color:#E6EDF3;">
+                        <span style="white-space:nowrap;width:55px;font-size:10px;font-weight:600;color:#14B8A6;">WHAT-IF</span>
+                        <div style="flex:1;background:rgba(255,255,255,0.06);height:4px;border-radius:2px;overflow:hidden;">
+                            <div style="background:#14B8A6;width:{w_bar_width}%;height:100%;"></div>
+                        </div>
+                        <span style="width:32px;text-align:right;color:#14B8A6;font-weight:700;">{w_score}</span>
+                    </div>
+                </div>
+                """
+
+            st.markdown(lens_rows_html, unsafe_allow_html=True)
+
+            # 5. PRIMARY IMPACT EXPLANATION
+            explanation_text = generate_whatif_explanation(base_impacts, what_if_impacts, whatif_green_buffer, whatif_row_adj, whatif_transit_spur, whatif_forecast_year)
+
+            st.markdown(
+                f"""
+                <div style="margin-top:0.4rem;padding:0.4rem 0.65rem;background:rgba(20, 184, 166, 0.06);border-left:2.5px solid #14B8A6;border-radius:0 4px 4px 0;">
+                    <div style="font-family:'Space Grotesk',sans-serif;font-size:10.5px;font-weight:700;color:#14B8A6;letter-spacing:0.04em;">PRIMARY IMPACT DRIVER</div>
+                    <div style="font-size:12px;color:#E6EDF3;margin-top:2px;line-height:1.4;">
+                        "{explanation_text}"
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
         # AI MITIGATION SYNTHESIS CARD WITH 3 DISTINCT COLOR BADGES
         ai_memo = call_ai_synthesis(
@@ -439,25 +698,25 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
 
         st.markdown(
             f"""
-            <div class="glass-panel" style="padding:1rem;margin-bottom:0.75rem;">
+            <div style="margin-bottom:0.75rem;padding:0.75rem;background:#121826;border:1px solid rgba(255,255,255,0.06);border-radius:6px;">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
-                    <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.88rem;color:#14B8A6;display:flex;align-items:center;gap:0.4rem;">
+                    <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:0.85rem;color:#14B8A6;display:flex;align-items:center;gap:0.4rem;">
                         {SVG_ICONS['sparkles']} AI MITIGATION BRIEFING
                     </div>
                     <span class="badge badge-emerald">POLICY SYNTHESIS</span>
                 </div>
-                <div style="font-size:0.8rem;color:#E5E7EB;line-height:1.5;margin-bottom:0.75rem;">
+                <div style="font-size:13px;color:#E6EDF3;line-height:1.5;margin-bottom:0.6rem;">
                     {ai_memo}
                 </div>
-                <div style="display:flex;flex-direction:column;gap:0.35rem;">
-                    <div class="badge badge-rose" style="width:100%;justify-flex-start;">
-                        PRIMARY RISK: {badge_data['primary_risk']}
+                <div style="display:flex;flex-direction:column;gap:0.3rem;">
+                    <div style="font-size:12px;color:#9AA4B2;padding:0.3rem 0.5rem;background:rgba(255,255,255,0.02);border-left:2px solid #EF4444;border-radius:0 3px 3px 0;">
+                        <strong style="color:#E6EDF3;">PRIMARY RISK:</strong> {badge_data['primary_risk']}
                     </div>
-                    <div class="badge badge-emerald" style="width:100%;justify-flex-start;">
-                        CANOPY MITIGATION: {badge_data['canopy_mitigation']}
+                    <div style="font-size:12px;color:#9AA4B2;padding:0.3rem 0.5rem;background:rgba(255,255,255,0.02);border-left:2px solid #10B981;border-radius:0 3px 3px 0;">
+                        <strong style="color:#E6EDF3;">CANOPY MITIGATION:</strong> {badge_data['canopy_mitigation']}
                     </div>
-                    <div class="badge badge-cyan" style="width:100%;justify-flex-start;">
-                        RECOMMENDED SHIFT: {badge_data['recommended_shift']}
+                    <div style="font-size:12px;color:#9AA4B2;padding:0.3rem 0.5rem;background:rgba(255,255,255,0.02);border-left:2px solid #00D2FF;border-radius:0 3px 3px 0;">
+                        <strong style="color:#E6EDF3;">RECOMMENDED SHIFT:</strong> {badge_data['recommended_shift']}
                     </div>
                 </div>
             </div>
@@ -465,44 +724,35 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
             unsafe_allow_html=True
         )
 
-        # DENSE EVIDENCE EXPLORER MATRIX WITH EXPLICIT STATUS TAGS
+        # COMPACT EVIDENCE EXPLORER ROWS
         st.markdown(
             f"""
-            <div class="glass-panel" style="padding:0.9rem;margin-bottom:0.75rem;">
-                <div style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:0.85rem;color:#FFFFFF;margin-bottom:0.4rem;">
-                    EVIDENCE EXPLORER TABLE
+            <div style="margin-bottom:0.75rem;padding:0.75rem;background:#121826;border:1px solid rgba(255,255,255,0.06);border-radius:6px;">
+                <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:0.85rem;color:#E6EDF3;margin-bottom:0.4rem;">
+                    EVIDENCE EXPLORER
                 </div>
-                <table class="dark-table">
-                    <thead>
-                        <tr>
-                            <th>Lens</th>
-                            <th>Status Tag</th>
-                            <th>Spatial Metric</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="color:#FF4757;font-weight:700;">Social</td>
-                            <td><span class="badge badge-rose">[CRITICAL]</span></td>
-                            <td class="mono">{impacts['people_affected_str']} residents</td>
-                        </tr>
-                        <tr>
-                            <td style="color:#14B8A6;font-weight:700;">Environment</td>
-                            <td><span class="badge badge-emerald">[NOMINAL]</span></td>
-                            <td class="mono">{impacts['green_area_str']} ({impacts['environment']['tree_canopy_removed_text']})</td>
-                        </tr>
-                        <tr>
-                            <td style="color:#00D2FF;font-weight:700;">Mobility</td>
-                            <td><span class="badge badge-cyan">[MODERATE]</span></td>
-                            <td class="mono">{impacts['additional_travel_str']} delay</td>
-                        </tr>
-                        <tr>
-                            <td style="color:#FFA500;font-weight:700;">Infrastructure</td>
-                            <td><span class="badge badge-amber">[MODERATE]</span></td>
-                            <td class="mono">{impacts['affected_assets_str']} structures</td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div style="display:flex;flex-direction:column;gap:0.3rem;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.35rem 0.5rem;background:rgba(255,255,255,0.02);border-radius:4px;font-size:12px;">
+                        <span style="color:#E6EDF3;font-weight:600;">Social</span>
+                        <span class="badge badge-rose">[CRITICAL]</span>
+                        <span style="font-family:'JetBrains Mono',monospace;color:#9AA4B2;">{impacts['people_affected_str']} residents</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.35rem 0.5rem;background:rgba(255,255,255,0.02);border-radius:4px;font-size:12px;">
+                        <span style="color:#E6EDF3;font-weight:600;">Environment</span>
+                        <span class="badge badge-emerald">[NOMINAL]</span>
+                        <span style="font-family:'JetBrains Mono',monospace;color:#9AA4B2;">{impacts['green_area_str']} ({impacts['environment']['tree_canopy_removed_text']})</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.35rem 0.5rem;background:rgba(255,255,255,0.02);border-radius:4px;font-size:12px;">
+                        <span style="color:#E6EDF3;font-weight:600;">Mobility</span>
+                        <span class="badge badge-cyan">[MODERATE]</span>
+                        <span style="font-family:'JetBrains Mono',monospace;color:#9AA4B2;">{impacts['additional_travel_str']} delay</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:0.35rem 0.5rem;background:rgba(255,255,255,0.02);border-radius:4px;font-size:12px;">
+                        <span style="color:#E6EDF3;font-weight:600;">Infrastructure</span>
+                        <span class="badge badge-amber">[MODERATE]</span>
+                        <span style="font-family:'JetBrains Mono',monospace;color:#9AA4B2;">{impacts['affected_assets_str']} structures</span>
+                    </div>
+                </div>
             </div>
             """,
             unsafe_allow_html=True
