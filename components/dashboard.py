@@ -12,7 +12,93 @@ from core.geocoding import geocode_city_with_buffer
 from core.demographics import generate_demographic_features
 from core.impact_engine import parse_drawing_geometry, calculate_impacts
 from core.ai_synthesizer import call_ai_synthesis, generate_mitigation_badges
-from core.scenario_manager import save_scenario, get_scenarios
+from core.scenario_manager import get_scenarios, save_scenario
+def evaluate_lower_impact_alternatives(
+    drawn_geom, gem_type, demographic_gdf, road_width: float, detour_factor: float, base_impacts: dict
+) -> list:
+    """
+    Evaluates a small, deterministic set of candidate parameter variations using the existing impact engine.
+    Returns candidate alternatives that produce a lower calculated Shadow Impact Index than base, sorted in ascending order of score.
+    """
+    base_score = base_impacts["shadow_cost_index"]
+
+    candidates_def = [
+        {
+            "id": 1,
+            "label": "Alternative 01",
+            "desc": "Green Buffer +5m",
+            "gb": 5.0,
+            "row": 0.0,
+            "transit": False,
+            "year": 2026
+        },
+        {
+            "id": 2,
+            "label": "Alternative 02",
+            "desc": "Corridor Width -2m",
+            "gb": 0.0,
+            "row": -2.0,
+            "transit": False,
+            "year": 2026
+        },
+        {
+            "id": 3,
+            "label": "Alternative 03",
+            "desc": "Transit Spur ON",
+            "gb": 0.0,
+            "row": 0.0,
+            "transit": True,
+            "year": 2026
+        }
+    ]
+
+    results = []
+
+    for c in candidates_def:
+        cand_impacts = calculate_impacts(
+            drawn_geom, gem_type, demographic_gdf,
+            road_width=road_width, detour_factor=detour_factor,
+            green_buffer_offset=c["gb"],
+            row_width_adj=c["row"],
+            transit_spur=c["transit"],
+            forecast_year=c["year"]
+        )
+
+        cand_score = cand_impacts["shadow_cost_index"]
+
+        if cand_score < base_score:
+            score_diff = base_score - cand_score
+
+            deltas = []
+            
+            soc_b, soc_c = base_impacts["social_score"], cand_impacts["social_score"]
+            if soc_c < soc_b:
+                d_pct = int(((soc_b - soc_c) / float(soc_b)) * 100.0) if soc_b > 0 else 0
+                deltas.append(f"Social ↓ {d_pct}%")
+
+            mob_b, mob_c = base_impacts["mobility_score"], cand_impacts["mobility_score"]
+            if mob_c < mob_b:
+                d_pct = int(((mob_b - mob_c) / float(mob_b)) * 100.0) if mob_b > 0 else 0
+                deltas.append(f"Mobility ↓ {d_pct}%")
+
+            env_b, env_c = base_impacts["env_score"], cand_impacts["env_score"]
+            if env_c < env_b:
+                d_pct = int(((env_b - env_c) / float(env_b)) * 100.0) if env_b > 0 else 0
+                deltas.append(f"Environment ↓ {d_pct}%")
+
+            inf_b, inf_c = base_impacts["infra_score"], cand_impacts["infra_score"]
+            if inf_c < inf_b:
+                d_pct = int(((inf_b - inf_c) / float(inf_b)) * 100.0) if inf_b > 0 else 0
+                deltas.append(f"Infrastructure ↓ {d_pct}%")
+
+            c["impacts"] = cand_impacts
+            c["score"] = cand_score
+            c["score_diff"] = score_diff
+            c["deltas"] = deltas
+            results.append(c)
+
+    results.sort(key=lambda x: x["score"])
+    return results
 
 
 def generate_whatif_explanation(base_impacts: dict, what_if_impacts: dict, gb: float, row: float, transit: bool, year: int) -> str:
@@ -561,12 +647,88 @@ def render_dashboard_stage(on_compare_callback=None, on_export_callback=None):
                     st.session_state["whatif_forecast_year"] = new_year
                     st.rerun()
 
-            if st.button("Reset Scenario", key="whatif_reset_btn", type="secondary", use_container_width=True):
-                st.session_state["whatif_green_buffer"] = 0.0
-                st.session_state["whatif_row_adj"] = 0.0
-                st.session_state["whatif_transit_spur"] = False
-                st.session_state["whatif_forecast_year"] = 2026
-                st.rerun()
+            btn_col1, btn_col2 = st.columns([1.5, 1])
+            with btn_col1:
+                if st.button("✦ FIND LOWER-IMPACT ALTERNATIVE", key="btn_find_alternatives", type="primary", use_container_width=True):
+                    st.session_state["show_alternatives"] = True
+                    st.session_state["cached_alternatives"] = evaluate_lower_impact_alternatives(
+                        drawn_geom, gem_type, demographic_gdf, road_width, detour_factor, base_impacts
+                    )
+                    st.rerun()
+            with btn_col2:
+                if st.button("Reset Scenario", key="whatif_reset_btn", type="secondary", use_container_width=True):
+                    st.session_state["whatif_green_buffer"] = 0.0
+                    st.session_state["whatif_row_adj"] = 0.0
+                    st.session_state["whatif_transit_spur"] = False
+                    st.session_state["whatif_forecast_year"] = 2026
+                    st.session_state["show_alternatives"] = False
+                    st.session_state.pop("cached_alternatives", None)
+                    st.rerun()
+
+            # LOWER MODELED IMPACT ALTERNATIVES SECTION
+            if st.session_state.get("show_alternatives"):
+                alternatives = st.session_state.get("cached_alternatives", [])
+
+                st.markdown("<div style='height:0.5rem;'></div>", unsafe_allow_html=True)
+                st.markdown(
+                    """
+                    <div style="font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:11.5px;color:#14B8A6;letter-spacing:0.04em;margin-bottom:0.4rem;">
+                        FIND A LOWER-IMPACT PLAN
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+                if not alternatives:
+                    st.markdown(
+                        """
+                        <div style="padding:0.6rem 0.8rem;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.06);border-radius:6px;margin-bottom:0.6rem;">
+                            <div style="font-family:'Space Grotesk',sans-serif;font-size:11px;font-weight:600;color:#9AA4B2;">
+                                NO LOWER-MODELED-IMPACT VARIANT FOUND
+                            </div>
+                            <div style="font-size:11.5px;color:#6B7280;margin-top:2px;">
+                                The tested parameter variations did not produce a lower modeled impact than the current scenario.
+                            </div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
+                else:
+                    for alt in alternatives:
+                        alt_id = alt["id"]
+                        alt_label = alt["label"]
+                        alt_desc = alt["desc"]
+                        alt_score = alt["score"]
+                        score_diff = alt["score_diff"]
+                        deltas_str = " · ".join(alt["deltas"]) if alt["deltas"] else "Overall lower modeled impact"
+
+                        st.markdown(
+                            f"""
+                            <div style="padding:0.55rem 0.75rem;background:#151A21;border:1px solid rgba(20, 184, 166, 0.25);border-radius:6px;margin-bottom:0.45rem;">
+                                <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.25rem;">
+                                    <div>
+                                        <div style="font-family:'Space Grotesk',sans-serif;font-size:10.5px;font-weight:700;color:#14B8A6;letter-spacing:0.04em;">{alt_label.upper()}</div>
+                                        <div style="font-size:12px;font-weight:600;color:#E6EDF3;margin-top:1px;">{alt_desc}</div>
+                                    </div>
+                                    <div style="text-align:right;">
+                                        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:#E6EDF3;">{alt_score} <span style="font-size:10px;color:#9AA4B2;">/ 100</span></div>
+                                        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#10B981;">↓ {score_diff} pts</div>
+                                    </div>
+                                </div>
+                                <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#5EEAD4;margin-bottom:0.35rem;">
+                                    {deltas_str}
+                                </div>
+                            </div>
+                            """,
+                            unsafe_allow_html=True
+                        )
+
+                        if st.button(f"APPLY SCENARIO: {alt_desc}", key=f"btn_apply_alt_{alt_id}", type="secondary", use_container_width=True):
+                            st.session_state["whatif_green_buffer"] = alt["gb"]
+                            st.session_state["whatif_row_adj"] = alt["row"]
+                            st.session_state["whatif_transit_spur"] = alt["transit"]
+                            st.session_state["whatif_forecast_year"] = alt["year"]
+                            st.rerun()
 
             st.markdown("<div style='height:0.4rem;'></div>", unsafe_allow_html=True)
 
