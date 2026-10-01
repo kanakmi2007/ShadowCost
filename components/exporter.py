@@ -116,7 +116,7 @@ def render_exporter_stage():
         st.markdown(
             """
             <div class="glass-panel" style="padding:1.1rem;margin-bottom:0.75rem;">
-                <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#00D2FF;font-weight:700;">FORMAT: CSV</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:#319795;font-weight:700;">FORMAT: CSV</div>
                 <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:0.95rem;color:#FFFFFF;margin-top:0.2rem;">METRIC MATRIX CSV</div>
                 <div style="font-size:0.8rem;color:#E5E7EB;margin-top:0.25rem;margin-bottom:0.85rem;">Tabular dataset for GIS spreadsheet tools</div>
             </div>

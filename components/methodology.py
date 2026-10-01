@@ -176,7 +176,7 @@ def render_methodology_stage(on_start_callback=None):
                         <td class="mono">Canopy loss (ha) & heat risk level</td>
                     </tr>
                     <tr>
-                        <td style="color:#00D2FF;font-weight:700;">Mobility</td>
+                        <td style="color:#319795;font-weight:700;">Mobility</td>
                         <td>Road network topology, detour multiplier factor, trip routing</td>
                         <td class="mono">Added travel distance & peak delay %</td>
                     </tr>

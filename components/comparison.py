@@ -100,7 +100,7 @@ def render_comparison_stage(on_next_callback=None, on_export_callback=None):
         with c_slot_a:
             st.markdown(
                 f"""
-                <div style="background:#0D131C;border:1px solid #14B8A6;border-radius:6px;padding:1rem;">
+                <div style="background:#0D131C;border:1px solid #38A169;border-radius:6px;padding:1rem;">
                     <div class="badge badge-emerald" style="margin-bottom:0.4rem;">SCENARIO A SAVED</div>
                     <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:1.1rem;color:#E8EEF5;">{scen_a["intervention_name"]}</div>
                     <div style="font-size:0.78rem;color:#8B97A6;margin-top:0.25rem;">Residents affected: {scen_a["people_affected_str"]} &bull; Canopy: {scen_a["green_area_str"]}</div>
@@ -152,64 +152,108 @@ def render_comparison_stage(on_next_callback=None, on_export_callback=None):
     # DUAL SIDE-BY-SIDE INTERACTIVE MAP VIEWS
     map_a_col, map_b_col = st.columns(2, gap="medium")
 
+    lat_a = scen_a.get("center_lat", 28.5241)
+    lon_a = scen_a.get("center_lon", 77.2181)
+    geom_a = scen_a.get("drawn_geom")
+    city_a = scen_a.get("city_name", "Saket, New Delhi")
+
+    lat_b = scen_b.get("center_lat", 28.5241)
+    lon_b = scen_b.get("center_lon", 77.2181)
+    geom_b = scen_b.get("drawn_geom")
+    city_b = scen_b.get("city_name", "Saket, New Delhi")
+
     with map_a_col:
         st.markdown(
             f"""
-            <div style="padding:0.75rem;background:#0D131C;border:1px solid #14B8A6;border-radius:6px;margin-bottom:0.65rem;">
+            <div style="padding:0.75rem;background:#0D131C;border:1px solid #38A169;border-radius:6px;margin-bottom:0.65rem;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem;">
-                    <span class="badge badge-emerald">SCENARIO A MAP</span>
-                    <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#14B8A6;font-weight:700;">Index: {scen_a.get('cost', {}).get('shadow_cost_index', 50)}/100</span>
+                    <span class="badge badge-emerald">SCENARIO A (PLAN)</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#48BB78;font-weight:700;">Index: {scen_a.get('cost', {}).get('shadow_cost_index', scen_a.get('shadow_cost_index', 50))}/100</span>
                 </div>
-                <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;color:#E8EEF5;">{scen_a["intervention_name"]}</div>
-                <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#8B97A6;">Dimension: {scen_a["dimension_val"]}</div>
+                <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;color:#E8EEF5;">{scen_a.get("intervention_name", "Baseline Plan")}</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#8B97A6;margin-top:2px;">
+                    ZONE: <strong style="color:#E8EEF5;">{city_a[:35]}</strong> &bull; Dim: <span style="color:#48BB78;">{scen_a.get("dimension_val", "—")}</span>
+                </div>
             </div>
             """,
             unsafe_allow_html=True
         )
 
         mA = folium.Map(
-            location=[28.5241, 77.2181], zoom_start=14,
-            tiles="https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-            attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            zoom_control=False
+            location=[lat_a, lon_a], zoom_start=15,
+            tiles=OSM_TILES, attr=OSM_ATTR, zoom_control=False
         )
-        folium.Element("""
-        <style>
-            .leaflet-tile-pane {
-                filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3);
-            }
-        </style>
-        """).add_to(mA.get_root().header)
+        folium.Element(DARK_TILE_CSS).add_to(mA.get_root().header)
+
+        # Catchment zone bound
+        folium.Circle(
+            location=[lat_a, lon_a], radius=1200,
+            color="#E53E3E", weight=1.5, dash_array="6, 6", fill=False, tooltip=f"Edit Zone: {city_a}"
+        ).add_to(mA)
+
+        # Draw intervention area geometry if available
+        if geom_a is not None:
+            if scen_a.get("is_road", True) and hasattr(geom_a, "coords"):
+                coords_a = [(p[1], p[0]) for p in geom_a.coords]
+                folium.PolyLine(locations=coords_a, color="#E53E3E", weight=6, opacity=0.95, tooltip="Scenario A Corridor Line").add_to(mA)
+                folium.CircleMarker(coords_a[0], radius=5, color="#E53E3E", fill=True, fill_color="#E53E3E").add_to(mA)
+                folium.CircleMarker(coords_a[-1], radius=5, color="#E53E3E", fill=True, fill_color="#E53E3E").add_to(mA)
+            elif hasattr(geom_a, "__geo_interface__"):
+                folium.GeoJson(
+                    geom_a.__geo_interface__,
+                    style_function=lambda x: {"fillColor": "#E53E3E", "color": "#E53E3E", "weight": 2.5, "fillOpacity": 0.5},
+                    tooltip="Scenario A Footprint"
+                ).add_to(mA)
+        else:
+            folium.CircleMarker([lat_a, lon_a], radius=7, color="#E53E3E", fill=True, fill_color="#E53E3E", tooltip="Scenario A Focus").add_to(mA)
+
         st_folium(mA, key="map_compare_A", width=None, height=360, returned_objects=[])
 
     with map_b_col:
         st.markdown(
             f"""
-            <div style="padding:0.75rem;background:#0D131C;border:1px solid #5EEAD4;border-radius:6px;margin-bottom:0.65rem;">
+            <div style="padding:0.75rem;background:#0D131C;border:1px solid #319795;border-radius:6px;margin-bottom:0.65rem;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.35rem;">
-                    <span class="badge badge-cyan">SCENARIO B MAP</span>
-                    <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#5EEAD4;font-weight:700;">Index: {scen_b.get('cost', {}).get('shadow_cost_index', 50)}/100</span>
+                    <span class="badge badge-cyan">SCENARIO B (ALT PLAN)</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;color:#319795;font-weight:700;">Index: {scen_b.get('cost', {}).get('shadow_cost_index', scen_b.get('shadow_cost_index', 50))}/100</span>
                 </div>
-                <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;color:#E8EEF5;">{scen_b["intervention_name"]}</div>
-                <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#8B97A6;">Dimension: {scen_b["dimension_val"]}</div>
+                <div style="font-family:'Inter',sans-serif;font-weight:700;font-size:1rem;color:#E8EEF5;">{scen_b.get("intervention_name", "Alternative Plan")}</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#8B97A6;margin-top:2px;">
+                    ZONE: <strong style="color:#E8EEF5;">{city_b[:35]}</strong> &bull; Dim: <span style="color:#319795;">{scen_b.get("dimension_val", "—")}</span>
+                </div>
             </div>
             """,
             unsafe_allow_html=True
         )
 
         mB = folium.Map(
-            location=[28.5241, 77.2181], zoom_start=14,
-            tiles="https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-            attr='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-            zoom_control=False
+            location=[lat_b, lon_b], zoom_start=15,
+            tiles=OSM_TILES, attr=OSM_ATTR, zoom_control=False
         )
-        folium.Element("""
-        <style>
-            .leaflet-tile-pane {
-                filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3);
-            }
-        </style>
-        """).add_to(mB.get_root().header)
+        folium.Element(DARK_TILE_CSS).add_to(mB.get_root().header)
+
+        # Catchment zone bound
+        folium.Circle(
+            location=[lat_b, lon_b], radius=1200,
+            color="#319795", weight=1.5, dash_array="6, 6", fill=False, tooltip=f"Edit Zone: {city_b}"
+        ).add_to(mB)
+
+        # Draw intervention area geometry if available
+        if geom_b is not None:
+            if scen_b.get("is_road", True) and hasattr(geom_b, "coords"):
+                coords_b = [(p[1], p[0]) for p in geom_b.coords]
+                folium.PolyLine(locations=coords_b, color="#319795", weight=6, opacity=0.95, tooltip="Scenario B Corridor Line").add_to(mB)
+                folium.CircleMarker(coords_b[0], radius=5, color="#319795", fill=True, fill_color="#319795").add_to(mB)
+                folium.CircleMarker(coords_b[-1], radius=5, color="#319795", fill=True, fill_color="#319795").add_to(mB)
+            elif hasattr(geom_b, "__geo_interface__"):
+                folium.GeoJson(
+                    geom_b.__geo_interface__,
+                    style_function=lambda x: {"fillColor": "#319795", "color": "#319795", "weight": 2.5, "fillOpacity": 0.5},
+                    tooltip="Scenario B Footprint"
+                ).add_to(mB)
+        else:
+            folium.CircleMarker([lat_b, lon_b], radius=7, color="#319795", fill=True, fill_color="#319795", tooltip="Scenario B Focus").add_to(mB)
+
         st_folium(mB, key="map_compare_B", width=None, height=360, returned_objects=[])
 
     st.markdown("<div style='height:0.75rem;'></div>", unsafe_allow_html=True)
@@ -251,10 +295,11 @@ def render_comparison_stage(on_next_callback=None, on_export_callback=None):
     # Trade-off summary card
     st.markdown(
         f"""
-        <div style="padding:0.85rem;background:#0D131C;border:1px solid rgba(20,184,166,0.25);border-radius:6px;font-size:0.82rem;color:#E8EEF5;line-height:1.55;">
-            <div style="font-family:'Inter',sans-serif;font-weight:700;color:#14B8A6;margin-bottom:0.3rem;">LAB TRADE-OFF SYNTHESIS</div>
+        <div style="padding:0.85rem;background:#0D131C;border:1px solid rgba(56,161,105,0.25);border-radius:6px;font-size:0.82rem;color:#E8EEF5;line-height:1.55;">
+            <div style="font-family:'Inter',sans-serif;font-weight:700;color:#38A169;margin-bottom:0.3rem;">LAB TRADE-OFF SYNTHESIS</div>
             {matrix["summary_text"]}
         </div>
         """,
         unsafe_allow_html=True
     )
+

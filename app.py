@@ -105,12 +105,12 @@ with st.sidebar:
         st.rerun()
 
 # =========================================================
-# DEVELOPER-GRADE NAVIGATION NAVBAR (Zero Text Emojis)
+# DEVELOPER-GRADE NAVIGATION NAVBAR (Full Width Tab Labels)
 # =========================================================
 TABS = ["Overview", "Spatial Analysis", "Command Center", "Scenario Lab", "Methodology", "Executive Report"]
 active_idx = st.session_state["active_tab_idx"]
 
-nav_col1, nav_col2, nav_col3 = st.columns([1.2, 5.4, 1.1], gap="small")
+nav_col1, nav_col2 = st.columns([1.2, 6.8], gap="small")
 
 with nav_col1:
     st.markdown(
@@ -131,16 +131,6 @@ with nav_col2:
             if st.button(tab_name, key=f"global_tab_{idx}", type=btn_kind, use_container_width=True):
                 st.session_state["active_tab_idx"] = idx
                 st.rerun()
-
-with nav_col3:
-    st.markdown(
-        """
-        <div style="display:flex;align-items:center;justify-content:flex-end;padding-top:0.35rem;">
-            <span class="nav-status"><span class="pulse-ring"></span> SYSTEM ACTIVE</span>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
 
 st.markdown("<div style='height:0.3rem;'></div>", unsafe_allow_html=True)
 
@@ -171,12 +161,14 @@ elif active_idx == 1:
     if substep == 0:
         render_location_stage(on_next_callback=lambda s: set_scenario_substep(1))
     elif substep == 1:
-        render_setup_stage(on_analyze_callback=lambda s: set_scenario_substep(2))
+        render_setup_stage(on_analyze_callback=lambda s: (
+            st.session_state.update({"active_tab_idx": 2, "scenario_substep": 0})
+        ))
     else:
-        render_dashboard_stage(
-            on_compare_callback=lambda s: navigate_to_tab(3),
-            on_export_callback=lambda s: navigate_to_tab(5)
-        )
+        st.session_state["scenario_substep"] = 0
+        st.session_state["active_tab_idx"] = 2
+        st.rerun()
+
 
 # TAB 2: COMMAND CENTER (Direct Impact Dashboard Surface)
 elif active_idx == 2:

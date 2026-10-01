@@ -13,20 +13,6 @@ from core.geocoding import geocode_city_with_buffer
 def render_location_stage(on_next_callback=None):
     """Renders Spatial Planning Workspace Location Selection Screen."""
 
-    # 1. COMPACT TECHNICAL PROGRESS INDICATOR
-    st.markdown(
-        """
-        <div style="font-family:'JetBrains Mono',monospace;font-size:0.72rem;color:#8B97A6;display:flex;align-items:center;gap:0.75rem;margin-bottom:1.1rem;letter-spacing:0.06em;">
-            <span style="color:#14B8A6;font-weight:700;">01  SPATIAL BOUNDS</span>
-            <span style="color:#334155;">━━━━━</span>
-            <span>02  INTERVENTION</span>
-            <span style="color:#334155;">━━━━━</span>
-            <span>03  COMMAND CENTER</span>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
     current_city = st.session_state.get("current_city_query", "Saket, New Delhi")
     radius_km = st.session_state.get("radius_km", 1.2)
 
@@ -37,9 +23,6 @@ def render_location_stage(on_next_callback=None):
         st.markdown(
             """
             <div style="margin-bottom:0.85rem;">
-                <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#14B8A6;font-weight:600;letter-spacing:0.08em;margin-bottom:0.25rem;">
-                    01 / SPATIAL BOUNDS
-                </div>
                 <h2 style="font-family:'Inter',sans-serif;font-size:1.35rem;font-weight:600;color:#E8EEF5;margin-bottom:0.3rem;">
                     SELECT STUDY AREA
                 </h2>
@@ -109,10 +92,7 @@ def render_location_stage(on_next_callback=None):
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.55rem;">
                     <div>
                         <div style="font-family:'Inter',sans-serif;font-weight:600;font-size:14px;color:#E8EEF5;">SPATIAL CONTEXT</div>
-                        <div style="font-family:'Inter',sans-serif;font-size:13px;color:#14B8A6;margin-top:1px;font-weight:500;">{display_name}</div>
-                    </div>
-                    <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;letter-spacing:0.08em;color:#14B8A6;background:rgba(20,184,166,0.12);padding:0.2rem 0.55rem;border-radius:4px;display:flex;align-items:center;gap:0.35rem;">
-                        <span style="width:6px;height:6px;border-radius:50%;background:#14B8A6;"></span> GEO ENGINE READY
+                        <div style="font-family:'Inter',sans-serif;font-size:13px;color:#38A169;margin-top:1px;font-weight:500;">{display_name}</div>
                     </div>
                 </div>
             """,
@@ -128,21 +108,6 @@ def render_location_stage(on_next_callback=None):
             zoom_control=False
         )
 
-        # Inject animated vector style directly into map header
-        m.get_root().header.add_child(
-            folium.Element("""
-            <style>
-                @keyframes dash {
-                    to { stroke-dashoffset: -30; }
-                }
-                .animated-vector-path {
-                    animation: dash 1.5s linear infinite !important;
-                }
-            </style>
-            """)
-        )
-
-        # Apply CSS Filter & Animated Vector Corridor Laser Strokes directly to map tiles
         folium.Element(DARK_TILE_CSS).add_to(m.get_root().header)
 
         # Catchment corridor polyline
@@ -153,24 +118,22 @@ def render_location_stage(on_next_callback=None):
         ]
         folium.PolyLine(
             locations=corridor_coords,
-            color="#10B981",
-            weight=5,
+            color="#E53E3E",
+            weight=4,
             opacity=0.9,
-            dash_array="10, 20",
-            className="animated-vector-path",
-            tooltip="Live Animated Vector Alignment"
+            dash_array="6, 6",
+            tooltip="Vector Alignment Corridor"
         ).add_to(m)
 
         folium.Circle(
             location=[center_lat, center_lon],
             radius=radius_km * 1000,
-            color="#10B981",
-            weight=2.5,
-            dash_array="10, 20",
-            className="animated-vector-path",
+            color="#38A169",
+            weight=2,
+            dash_array="6, 6",
             fill=True,
-            fill_color="#10B981",
-            fill_opacity=0.12
+            fill_color="#38A169",
+            fill_opacity=0.1
         ).add_to(m)
 
         folium.Marker(
@@ -187,8 +150,7 @@ def render_location_stage(on_next_callback=None):
             f"""
             <div style="padding:0.4rem 0.75rem;background:#070A0F;border:1px solid rgba(139,151,166,0.12);border-radius:4px;display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:#8B97A6;margin-top:0.45rem;margin-bottom:0.55rem;">
                 <span>LAT/LON: <strong style="color:#E8EEF5;">{center_lat:.4f}° N, {center_lon:.4f}° E</strong></span>
-                <span>PROJECTION: <strong style="color:#E8EEF5;">EPSG:4326</strong></span>
-                <span>CATCHMENT: <strong style="color:#14B8A6;">{radius_km:.1f} km</strong></span>
+                <span>CATCHMENT: <strong style="color:#38A169;">{radius_km:.1f} km</strong></span>
             </div>
             """,
             unsafe_allow_html=True
@@ -206,3 +168,4 @@ def render_location_stage(on_next_callback=None):
             if on_next_callback:
                 on_next_callback(1)
             st.rerun()
+
